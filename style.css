@@ -1,36 +1,60 @@
 :root {
-    --bg: #1c1917; /* Walnut Brown - 2026 Trend */
-    --gold: #d4af37;
-    --text: #f5f5f4; /* Cloud Dancer White */
-    --card: rgba(255, 255, 255, 0.03);
+    --primary: #d4af37; /* Royal Gold */
+    --dark-bg: #0f172a; /* Deep Navy/Charcoal */
+    --card-bg: #1e293b;
+    --text: #f8fafc;
 }
 
-body { background: var(--bg); color: var(--text); font-family: 'Noto Serif Kannada', serif; margin: 0; }
-
-.app-header { 
-    padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,215,0,0.2); 
-    position: sticky; top: 0; background: rgba(28, 25, 23, 0.95); backdrop-filter: blur(10px);
+body {
+    background-color: var(--dark-bg);
+    color: var(--text);
+    font-family: 'Noto Serif Kannada', serif;
+    margin: 0; padding-bottom: 60px;
 }
-.logo { font-size: 1.8rem; font-weight: 700; letter-spacing: 2px; }
-.logo span { color: var(--gold); }
-.update-tag { font-size: 0.7rem; color: var(--gold); margin-top: 5px; }
 
-.news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; padding: 20px; }
-
-.news-card { 
-    background: var(--card); border-radius: 12px; overflow: hidden; 
-    border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: 0.3s;
+.main-nav {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 15px 20px; background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100;
 }
-.news-card:hover { border-color: var(--gold); transform: translateY(-3px); }
-.news-card img { width: 100%; height: 200px; object-fit: cover; }
-.card-info { padding: 15px; }
-.card-info h3 { font-size: 1.1rem; line-height: 1.5; margin: 0 0 10px; }
 
-/* Full Screen Reader Mode */
-.reader-overlay { 
-    position: fixed; top: 100%; left: 0; width: 100%; height: 100%; 
-    background: var(--bg); z-index: 1000; transition: 0.4s ease-out; overflow-y: auto; 
+.logo { font-family: 'Baloo Tamma 2', cursive; font-size: 1.4rem; font-weight: 700; }
+.logo span { color: var(--primary); }
+
+.category-scroll {
+    display: flex; overflow-x: auto; padding: 10px 20px; gap: 10px;
+    scrollbar-width: none; border-bottom: 1px solid rgba(255,255,255,0.1);
 }
-.reader-overlay.active { top: 0; }
-.reader-bar { padding: 20px; border-bottom: 1px solid var(--card); display: flex; justify-content: space-between; }
-.reader-body { padding: 30px; max-width: 800px; margin: 0 auto; line-height: 1.8; }
+
+.chip {
+    background: var(--card-bg); border: none; color: white;
+    padding: 6px 16px; border-radius: 20px; white-space: nowrap; font-size: 0.85rem;
+}
+
+.chip.active { background: var(--primary); color: #000; font-weight: bold; }
+
+/* Bento Grid Layout */
+.bento-feed {
+    display: grid; grid-template-columns: 1fr; gap: 16px; padding: 16px;
+}
+
+.news-card {
+    background: var(--card-bg); border-radius: 20px; overflow: hidden;
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); transition: 0.3s;
+    cursor: pointer; position: relative;
+}
+
+.news-card:active { transform: scale(0.98); }
+
+.img-container { height: 220px; position: relative; }
+.img-container img { width: 100%; height: 100%; object-fit: cover; }
+
+.badge {
+    position: absolute; top: 12px; left: 12px;
+    background: var(--primary); color: black; font-size: 0.65rem;
+    padding: 3px 8px; border-radius: 4px; font-weight: bold;
+}
+
+.card-info { padding: 16px; }
+.card-info h3 { font-size: 1.15rem; margin: 0 0 10px; line-height: 1.4; }
+.meta { font-size: 0.75rem; color: #94a3b8; display: flex; justify-content: space-between; }
