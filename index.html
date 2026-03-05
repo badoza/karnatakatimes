@@ -2,61 +2,33 @@
 <html lang="kn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Karnataka Times | ಕರ್ನಾಟಕ ಟೈಮ್ಸ್</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Kannada:wght@400;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Kannada:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <header class="top-nav">
-        <div class="date">ಗುರುವಾರ, ಮಾರ್ಚ್ 5, 2026</div>
-        <div class="brand">KARNATAKA TIMES</div>
-        <div class="lang-switch">E-Paper</div>
+    <header class="app-header">
+        <div class="header-content">
+            <span class="menu-icon">☰</span>
+            <h1 class="logo">KT<span>.</span></h1>
+            <div class="user-profile"></div>
+        </div>
     </header>
 
-    <div class="ticker">
-        <span class="ticker-label">BREAKING:</span>
-        <marquee>ಬೆಂಗಳೂರಿನಲ್ಲಿ ಮೆಟ್ರೋ ಎರಡನೇ ಹಂತದ ಕಾಮಗಾರಿ ಪೂರ್ಣ - ಸಂಚಾರಕ್ಕೆ ಮುಕ್ತ...</marquee>
-    </div>
-
-    <main class="container">
-        <section class="hero">
-            <div class="hero-image">
-                <img src="https://images.unsplash.com/photo-1590766948510-993959b581c1?auto=format&fit=crop&q=80&w=1000" alt="Vidhana Soudha">
-                <div class="hero-overlay">
-                    <span class="category">ರಾಜಕೀಯ</span>
-                    <h1>ರಾಜ್ಯ ಬಜೆಟ್ 2026: ಅಭಿವೃದ್ಧಿಗೆ ಹೆಚ್ಚಿನ ಒತ್ತು ನೀಡಿದ ಸರ್ಕಾರ</h1>
-                    <p>ಮುಖ್ಯಮಂತ್ರಿಗಳಿಂದ ಮಹತ್ವದ ಘೋಷಣೆಗಳು ಮತ್ತು ಹೊಸ ಯೋಜನೆಗಳ ಪಟ್ಟಿ ಇಲ್ಲಿದೆ...</p>
-                </div>
+    <main class="app-container">
+        <div id="news-feed" class="news-feed">
             </div>
-        </section>
-
-        <section class="news-grid">
-            <article class="card">
-                <img src="https://images.unsplash.com/photo-1540324155974-7523202daa3f?auto=format&fit=crop&q=80&w=500" alt="Sports">
-                <div class="card-content">
-                    <span class="category">ಕ್ರೀಡೆ</span>
-                    <h3>ಐಪಿಎಲ್ 2026: ಆರ್ ಸಿಬಿ ತಂಡಕ್ಕೆ ಭರ್ಜರಿ ಜಯ</h3>
-                </div>
-            </article>
-
-            <article class="card">
-                <div class="card-content">
-                    <span class="category">ತಂತ್ರಜ್ಞಾನ</span>
-                    <h3>ಹೊಸ ಎಐ ತಂತ್ರಜ್ಞಾನದಿಂದ ಕೃಷಿ ಕ್ಷೇತ್ರದಲ್ಲಿ ಬದಲಾವಣೆ</h3>
-                    <p>ರೈತರಿಗಾಗಿ ವಿಶೇಷ ಆಪ್ ಬಿಡುಗಡೆ ಮಾಡಿದ ಕೃಷಿ ಇಲಾಖೆ.</p>
-                </div>
-            </article>
-            
-            <article class="card premium">
-                <div class="card-content">
-                    <span class="premium-tag">PREMIUM</span>
-                    <h3>ಕನ್ನಡ ಸಾಹಿತ್ಯ ಲೋಕದ ದಿಗ್ಗಜರೊಂದಿಗೆ ಒಂದು ವಿಶೇಷ ಸಂದರ್ಶನ</h3>
-                </div>
-            </article>
-        </section>
     </main>
 
+    <nav class="bottom-nav">
+        <div class="nav-item active">🏠 <span>ಮುಖಪುಟ</span></div>
+        <div class="nav-item">🔥 <span>ಟ್ರೆಂಡಿಂಗ್</span></div>
+        <div class="nav-item">📍 <span>ಸ್ಥಳೀಯ</span></div>
+        <div class="nav-item">🔖 <span>ಸೇವ್ಡ್</span></div>
+    </nav>
+
+    <script src="script.js"></script>
 </body>
 </html>
