@@ -2,88 +2,72 @@ const SOURCES = [
     'https://kannada.oneindia.com/rss/feeds/kannada-news-fb.xml',
     'https://www.prajavani.net/rssfeeds/karnataka.xml',
     'https://kannada.news18.com/rss/state.xml',
-    'https://kannada.hindustantimes.com/rss/karnataka'
+    'https://www.thehindu.com/news/national/karnataka/feeder/default.rss'
 ];
 
-async function updateLiveNews() {
-    let allNews = [];
+async function updateNews() {
     const proxy = "https://api.rss2json.com/v1/api.json?rss_url=";
+    let allArticles = [];
 
     for (let url of SOURCES) {
         try {
             const res = await fetch(proxy + encodeURIComponent(url));
             const data = await res.json();
-            if (data.status === 'ok') allNews = [...allNews, ...data.items];
-        } catch (e) { console.warn("Failed source:", url); }
+            if (data.status === 'ok') allArticles = [...allArticles, ...data.items];
+        } catch (e) { console.error("Feed error:", url); }
     }
 
-    // Sort by latest and display 40+ news
-    allNews.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-    renderWall(allNews.slice(0, 45));
+    allArticles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+    renderWall(allArticles.slice(0, 45)); // Show 40+ trending news
 }
 
 function renderWall(articles) {
     const feed = document.getElementById('newsFeed');
+    document.getElementById('loader').style.display = 'none';
+    
     feed.innerHTML = articles.map(item => {
-        // Advanced image discovery
-        const image = item.thumbnail || (item.enclosure && item.enclosure.link) || findImg(item.description);
-        
+        const img = item.thumbnail || (item.enclosure && item.enclosure.link) || 'https://via.placeholder.com/400x200?text=KT+News';
         return `
-            <div class="news-card" onclick="openFullArticle('${encodeURIComponent(JSON.stringify({...item, featuredImg: image}))}')">
-                <div class="img-container">
-                    <span class="badge">${item.author || 'ಪ್ರಮುಖ ವಾರ್ತೆ'}</span>
-                    <img src="${image}" onerror="this.src='https://images.unsplash.com/photo-1585007600263-ad1f34741891?w=600'">
-                </div>
-                <div class="card-info">
+            <div class="news-card" onclick="openFullNews('${encodeURIComponent(JSON.stringify({...item, image: img}))}')">
+                <img src="${img}" class="card-img" onerror="this.src='https://via.placeholder.com/400?text=News'">
+                <div class="card-body">
+                    <span style="color:var(--gold); font-size:0.7rem;">${item.author || 'ಸುದ್ದಿ'}</span>
                     <h3>${item.title}</h3>
-                    <div class="meta">
-                        <span>🕒 ${new Date(item.pubDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                        <span>ಓದಿ →</span>
-                    </div>
                 </div>
             </div>
         `;
     }).join('');
 }
 
-function findImg(html) {
-    const temp = document.createElement('div');
-    temp.innerHTML = html;
-    const img = temp.querySelector('img');
-    return img ? img.src : 'https://via.placeholder.com/600x400?text=Karnataka+Times';
-}
-
-function openFullArticle(encodedData) {
+function openFullNews(encodedData) {
     const data = JSON.parse(decodeURIComponent(encodedData));
-    
-    // Creates a new tab with a matching "Classy" style for the detail view
     const newTab = window.open("", "_blank");
+    
+    // Create a rich detailed page in the new tab
     newTab.document.write(`
         <html>
         <head>
             <title>${data.title}</title>
             <meta name="viewport" content="width=device-width, initial-scale=1">
             <style>
-                body { background: #0f172a; color: white; font-family: 'Segoe UI', sans-serif; padding: 20px; line-height: 1.6; }
-                img { width: 100%; border-radius: 15px; margin: 20px 0; }
-                h1 { font-size: 1.8rem; line-height: 1.3; color: #d4af37; }
+                body { background: #0f172a; color: white; font-family: sans-serif; padding: 20px; line-height: 1.6; }
+                img { width: 100%; border-radius: 15px; margin: 20px 0; max-height: 400px; object-fit: cover; }
+                h1 { color: #d4af37; font-size: 1.5rem; }
                 .content { font-size: 1.1rem; color: #cbd5e1; }
-                .back-btn { background: #d4af37; color: #000; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; }
             </style>
         </head>
         <body>
-            <button onclick="window.close()" class="back-btn">← ವಾಪಸ್</button>
             <h1>${data.title}</h1>
-            <p>ಮೂಲ: ${data.author || 'ಕರ್ನಾಟಕ ಟೈಮ್ಸ್'} | ${data.pubDate}</p>
-            <img src="${data.featuredImg}">
-            <div class="content">${data.content || data.description}</div>
+            <p>Source: ${data.author} | ${data.pubDate}</p>
+            <img src="${data.image}">
+            <div class="content">${data.description}</div>
             <hr>
-            <p style="text-align:center;"><a href="${data.link}" style="color:#d4af37">ಮೂಲ ಸುದ್ದಿಯನ್ನು ಇಲ್ಲಿ ಓದಿ</a></p>
+            <center><a href="${data.link}" target="_blank" style="color:#d4af37">ಮೂಲ ಸುದ್ದಿಯನ್ನು ಇಲ್ಲಿ ಓದಿ →</a></center>
         </body>
         </html>
     `);
 }
 
-// Hourly refresh
-setInterval(updateLiveNews, 3600000);
-document.addEventListener('DOMContentLoaded', updateLiveNews);
+// 1-Hour Auto Refresh Timer
+setInterval(updateNews, 3600000); 
+document.addEventListener('DOMContentLoaded', updateNews);
