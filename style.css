@@ -1,131 +1,104 @@
 :root {
-    --primary: #1a1a1a;
-    --accent: #c5a059;
-    --text: #333;
-    --bg: #fdfdfd;
+    --bg-dark: #0a0a0a;
+    --card-bg: rgba(255, 255, 255, 0.05);
+    --gold: #d4af37;
+    --text-white: #ffffff;
+    --text-dim: #b3b3b3;
+    --glass: blur(15px);
 }
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 body {
     margin: 0;
+    background-color: var(--bg-dark);
     font-family: 'Noto Serif Kannada', serif;
-    background-color: var(--bg);
-    color: var(--primary);
+    color: var(--text-white);
+    overflow-x: hidden;
 }
 
-/* Header & Branding */
-.top-nav {
+/* Header: Glassmorphism Effect */
+.app-header {
+    position: fixed;
+    top: 0; width: 100%; height: 70px;
+    background: rgba(10, 10, 10, 0.8);
+    backdrop-filter: var(--glass);
+    z-index: 1000;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 20px 5%;
-    border-bottom: 3px double var(--primary);
-    background: #fff;
+    border-bottom: 1px solid rgba(255, 215, 0, 0.1);
 }
 
-.brand {
-    font-family: 'Playfair Display', serif;
-    font-size: 2.5rem;
-    font-weight: 700;
-    letter-spacing: 2px;
+.header-content {
+    width: 90%; margin: 0 auto;
+    display: flex; justify-content: space-between; align-items: center;
 }
 
-/* Ticker */
-.ticker {
-    background: var(--primary);
-    color: #fff;
-    padding: 10px 0;
-    font-size: 0.9rem;
+.logo { 
+    font-family: 'Playfair Display', serif; 
+    font-size: 1.8rem; letter-spacing: 2px;
 }
+.logo span { color: var(--gold); }
 
-.ticker-label {
-    background: var(--accent);
-    padding: 10px 20px;
-    font-weight: bold;
-    margin-right: 10px;
-}
+/* News Card Design */
+.app-container { padding: 90px 15px 100px; }
 
-/* Hero Section */
-.container {
-    max-width: 1200px;
-    margin: 30px auto;
-    padding: 0 20px;
-}
-
-.hero-image {
-    position: relative;
-    height: 500px;
+.news-card {
+    background: var(--card-bg);
+    border-radius: 20px;
     overflow: hidden;
-    border-radius: 4px;
+    margin-bottom: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
 }
 
-.hero-image img {
-    width: 100%;
-    height: 100%;
+.news-card:active { transform: scale(0.97); }
+
+.card-img {
+    width: 100%; height: 220px;
     object-fit: cover;
-    transition: transform 0.5s ease;
+    filter: brightness(0.9);
 }
 
-.hero-overlay {
-    position: absolute;
-    bottom: 0;
-    background: linear-gradient(transparent, rgba(0,0,0,0.9));
-    color: white;
-    padding: 40px;
-    width: 100%;
-}
+.card-body { padding: 20px; }
 
-/* Grid Layout */
-.news-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
-    margin-top: 40px;
-}
-
-.card {
-    background: white;
-    border-bottom: 4px solid var(--accent);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-    transition: 0.3s;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-}
-
-.card img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-}
-
-.card-content {
-    padding: 20px;
-}
-
-.category {
-    color: var(--accent);
-    text-transform: uppercase;
-    font-size: 0.8rem;
-    font-weight: bold;
-    display: block;
-    margin-bottom: 10px;
-}
-
-.premium {
-    background: var(--primary);
-    color: var(--accent);
-}
-
-.premium-tag {
-    border: 1px solid var(--accent);
-    padding: 2px 8px;
+.category-tag {
+    color: var(--gold);
     font-size: 0.7rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-/* Mobile Responsiveness */
-@media (max-width: 768px) {
-    .brand { font-size: 1.5rem; }
-    .hero-image { height: 350px; }
-    .hero-overlay h1 { font-size: 1.2rem; }
+.news-card h2 {
+    font-size: 1.3rem;
+    margin: 10px 0;
+    line-height: 1.5;
+    font-weight: 700;
 }
+
+.news-card p {
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+    position: fixed;
+    bottom: 20px; left: 5%; width: 90%;
+    height: 65px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: var(--glass);
+    border-radius: 50px;
+    display: flex; justify-content: space-around; align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nav-item { text-align: center; font-size: 0.7rem; color: var(--text-dim); }
+.nav-item.active { color: var(--gold); }
