@@ -1,34 +1,36 @@
-/* Premium Mobile-First Layout */
-.news-feed {
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
-    gap: 15px;
+:root {
+    --bg: #1c1917; /* Walnut Brown - 2026 Trend */
+    --gold: #d4af37;
+    --text: #f5f5f4; /* Cloud Dancer White */
+    --card: rgba(255, 255, 255, 0.03);
 }
 
-.news-card {
-    display: flex;
-    background: var(--glass);
-    border-radius: 15px;
-    overflow: hidden;
-    height: 120px; /* Compact mobile list style */
+body { background: var(--bg); color: var(--text); font-family: 'Noto Serif Kannada', serif; margin: 0; }
+
+.app-header { 
+    padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,215,0,0.2); 
+    position: sticky; top: 0; background: rgba(28, 25, 23, 0.95); backdrop-filter: blur(10px);
 }
+.logo { font-size: 1.8rem; font-weight: 700; letter-spacing: 2px; }
+.logo span { color: var(--gold); }
+.update-tag { font-size: 0.7rem; color: var(--gold); margin-top: 5px; }
 
-.card-img { width: 35%; object-fit: cover; }
-.card-body { width: 65%; padding: 10px; display: flex; flex-direction: column; justify-content: center; }
-.card-body h3 { font-size: 0.95rem; margin: 5px 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; padding: 20px; }
 
-/* The Reader Sheet Animation */
-.reader-overlay {
-    position: fixed;
-    bottom: -100%; left: 0;
-    width: 100%; height: 95vh;
-    background: #1c1917;
-    z-index: 2000;
-    transition: 0.4s cubic-bezier(0.1, 0.7, 0.1, 1);
-    padding: 20px;
-    overflow-y: auto;
-    border-radius: 25px 25px 0 0;
+.news-card { 
+    background: var(--card); border-radius: 12px; overflow: hidden; 
+    border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: 0.3s;
 }
+.news-card:hover { border-color: var(--gold); transform: translateY(-3px); }
+.news-card img { width: 100%; height: 200px; object-fit: cover; }
+.card-info { padding: 15px; }
+.card-info h3 { font-size: 1.1rem; line-height: 1.5; margin: 0 0 10px; }
 
-.reader-overlay.active { bottom: 0; }
+/* Full Screen Reader Mode */
+.reader-overlay { 
+    position: fixed; top: 100%; left: 0; width: 100%; height: 100%; 
+    background: var(--bg); z-index: 1000; transition: 0.4s ease-out; overflow-y: auto; 
+}
+.reader-overlay.active { top: 0; }
+.reader-bar { padding: 20px; border-bottom: 1px solid var(--card); display: flex; justify-content: space-between; }
+.reader-body { padding: 30px; max-width: 800px; margin: 0 auto; line-height: 1.8; }
