@@ -1,42 +1,65 @@
-const newsData = [
-    {
-        title: "ಬೆಂಗಳೂರು-ಮೈಸೂರು ಎಕ್ಸ್‌ಪ್ರೆಸ್‌ವೇನಲ್ಲಿ ಹೊಸ ನಿಯಮ ಜಾರಿ",
-        summary: "ಹೆದ್ದಾರಿಯಲ್ಲಿ ಸುರಕ್ಷತೆ ಹೆಚ್ಚಿಸಲು ಸಂಚಾರ ಇಲಾಖೆಯಿಂದ ಮಹತ್ವದ ಬದಲಾವಣೆ...",
-        category: "ಸುದ್ದಿ",
-        image: "https://images.unsplash.com/photo-1545131926-89793160a0a6?w=500",
-        url: "https://kannada.oneindia.com/" // Example external source
-    },
-    {
-        title: "ಕನ್ನಡ ಚಿತ್ರರಂಗದ ಹೊಸ ಮೈಲಿಗಲ್ಲು: ಆಸ್ಕರ್ ರೇಸ್‌ನಲ್ಲಿ ಕಾಂತಾರ-2",
-        summary: "ರಿಷಬ್ ಶೆಟ್ಟಿ ಅಭಿನಯದ ಚಿತ್ರವು ಜಾಗತಿಕ ಮಟ್ಟದಲ್ಲಿ ಗಮನ ಸೆಳೆಯುತ್ತಿದೆ...",
-        category: "ಮನರಂಜನೆ",
-        image: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=500",
-        url: "https://kannada.filmibeat.com/"
-    }
+// Major Kannada News RSS Feeds
+const FEEDS = [
+    'https://kannada.oneindia.com/rss/feeds/kannada-news-fb.xml', // General
+    'https://kannada.oneindia.com/rss/feeds/oneindia-kannada-fb.xml', // Top Trending
+    'https://www.prajavani.net/rssfeeds/karnataka.xml', // Regional
+    'https://kannada.boldsky.com/rss/feeds/boldsky-kannada-fb.xml' // Lifestyle/Global
 ];
 
-const feed = document.getElementById('news-feed');
+// Using a free RSS-to-JSON converter to avoid CORS issues
+const API_URL = "https://api.rss2json.com/v1/api.json?rss_url=";
 
-function loadNews() {
-    newsData.forEach(item => {
+async function fetchAllNews() {
+    const wall = document.getElementById('newsWall');
+    const loader = document.getElementById('loading');
+    let allArticles = [];
+
+    try {
+        for (let feedUrl of FEEDS) {
+            const response = await fetch(API_URL + encodeURIComponent(feedUrl));
+            const data = await response.json();
+            if (data.status === 'ok') {
+                allArticles = [...allArticles, ...data.items];
+            }
+        }
+
+        // Limit to top 30 trending/fresh stories
+        allArticles = allArticles.slice(0, 30);
+        
+        loader.style.display = 'none';
+        renderNews(allArticles);
+    } catch (error) {
+        loader.innerText = "ಸುದ್ದಿ ಲೋಡ್ ಮಾಡುವಲ್ಲಿ ವಿಫಲವಾಗಿದೆ.";
+    }
+}
+
+function renderNews(articles) {
+    const wall = document.getElementById('newsWall');
+    wall.innerHTML = '';
+
+    articles.forEach((item, index) => {
         const card = document.createElement('div');
-        card.className = 'news-card';
+        card.className = `news-card ${index === 0 ? 'feature-card' : ''}`;
+        
+        // Extracting image or using a premium placeholder
+        const img = item.thumbnail || item.enclosure.link || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800';
+
         card.innerHTML = `
-            <img src="${item.image}" class="card-img" alt="news">
-            <div class="card-body">
-                <span class="category-tag">${item.category}</span>
+            <div class="image-wrapper">
+                <img src="${img}" alt="news">
+            </div>
+            <div class="content">
+                <span class="source">${item.author || 'Karnataka Times'}</span>
                 <h2>${item.title}</h2>
-                <p>${item.summary}</p>
+                <p>${item.description.replace(/<[^>]*>?/gm, '').substring(0, 100)}...</p>
+                <button class="read-btn">ಪೂರ್ಣ ಮಾಹಿತಿ ಓದಿ</button>
             </div>
         `;
-        
-        // Open news in new tab on click
-        card.onclick = () => {
-            window.open(item.url, '_blank');
-        };
-        
-        feed.appendChild(card);
+
+        // Click opens the original detail page in a new tab
+        card.onclick = () => window.open(item.link, '_blank');
+        wall.appendChild(card);
     });
 }
 
-document.addEventListener('DOMContentLoaded', loadNews);
+document.addEventListener('DOMContentLoaded', fetchAllNews);
