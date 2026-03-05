@@ -2,32 +2,22 @@
 <html lang="kn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Karnataka Times | ಕರ್ನಾಟಕ ಟೈಮ್ಸ್</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Kannada:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Kannada:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <header class="app-header">
-        <div class="header-content">
-            <span class="menu-icon">☰</span>
-            <h1 class="logo">KT<span>.</span></h1>
-            <div class="user-profile"></div>
-        </div>
+    <header class="main-header">
+        <div class="logo">KARNATAKA <span>TIMES</span></div>
+        <div class="live-indicator">● LIVE</div>
     </header>
 
-    <main class="app-container">
-        <div id="news-feed" class="news-feed">
-            </div>
-    </main>
+    <div id="loading" class="loader">ಸುದ್ದಿಗಳನ್ನು ಸಂಗ್ರಹಿಸಲಾಗುತ್ತಿದೆ...</div>
 
-    <nav class="bottom-nav">
-        <div class="nav-item active">🏠 <span>ಮುಖಪುಟ</span></div>
-        <div class="nav-item">🔥 <span>ಟ್ರೆಂಡಿಂಗ್</span></div>
-        <div class="nav-item">📍 <span>ಸ್ಥಳೀಯ</span></div>
-        <div class="nav-item">🔖 <span>ಸೇವ್ಡ್</span></div>
-    </nav>
+    <main class="news-wall" id="newsWall">
+        </main>
 
     <script src="script.js"></script>
 </body>
