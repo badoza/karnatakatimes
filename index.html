@@ -2,31 +2,19 @@
 <html lang="kn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Karnataka Times | ಕರ್ನಾಟಕ ಟೈಮ್ಸ್</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karnataka Times</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Kannada:wght@400;700&family=Baloo+Tamma+2:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Kannada:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header class="main-nav">
+    <header class="luxury-header">
         <div class="logo">KARNATAKA <span>TIMES</span></div>
-        <div class="live-tag">● ತಾಜಾ ಸುದ್ದಿ</div>
+        <div class="status">● REAL-TIME UPDATES</div>
     </header>
 
-    <div class="category-scroll">
-        <button class="chip active">ಎಲ್ಲವೂ</button>
-        <button class="chip">ರಾಜ್ಯ</button>
-        <button class="chip">ರಾಷ್ಟ್ರೀಯ</button>
-        <button class="chip">ಜಾಗತಿಕ</button>
-        <button class="chip">ಕ್ರೀಡೆ</button>
-    </div>
-
-    <main class="bento-feed" id="newsFeed">
-        </main>
-
-    <footer class="refresh-footer">
-        <p id="updateTimer">ಮುಂದಿನ ಅಪ್ಡೇಟ್: 60 ನಿಮಿಷಗಳಲ್ಲಿ</p>
-    </footer>
+    <div id="loader" class="loader">ಸುದ್ದಿಗಳನ್ನು ಸಂಗ್ರಹಿಸಲಾಗುತ್ತಿದೆ...</div>
+    <main class="news-wall" id="newsFeed"></main>
 
     <script src="script.js"></script>
 </body>
