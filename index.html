@@ -1,17 +1,28 @@
-<div id="app">
-    <header class="premium-header">
+<!DOCTYPE html>
+<html lang="kn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karnataka Times</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Kannada:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="app-header">
         <div class="logo">KARNATAKA <span>TIMES</span></div>
-        <div class="refresh-timer" id="timer">Next update: 60m</div>
+        <div id="lastUpdated" class="update-tag">ಅಪ್ಡೇಟ್ ಮಾಡಲಾಗುತ್ತಿದೆ...</div>
     </header>
 
-    <main class="news-feed" id="newsFeed"></main>
+    <main class="news-grid" id="newsGrid"></main>
 
-    <div id="readerView" class="reader-overlay">
-        <div class="reader-header">
-            <button onclick="closeReader()">✕ ಹಿಂದಕ್ಕೆ</button>
-            <span id="readerSource"></span>
+    <div id="readerOverlay" class="reader-overlay">
+        <div class="reader-bar">
+            <button onclick="closeReader()">✕ ಮುಚ್ಚಿ</button>
+            <span id="articleSource"></span>
         </div>
-        <div class="reader-content" id="fullArticle">
-            </div>
+        <div id="readerContent" class="reader-body"></div>
     </div>
-</div>
+
+    <script src="script.js"></script>
+</body>
+</html>
