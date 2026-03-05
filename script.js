@@ -1,65 +1,54 @@
-// Major Kannada News RSS Feeds
-const FEEDS = [
-    'https://kannada.oneindia.com/rss/feeds/kannada-news-fb.xml', // General
-    'https://kannada.oneindia.com/rss/feeds/oneindia-kannada-fb.xml', // Top Trending
-    'https://www.prajavani.net/rssfeeds/karnataka.xml', // Regional
-    'https://kannada.boldsky.com/rss/feeds/boldsky-kannada-fb.xml' // Lifestyle/Global
+const SOURCES = [
+    'https://kannada.oneindia.com/rss/feeds/kannada-news-fb.xml',
+    'https://www.prajavani.net/rssfeeds/karnataka.xml',
+    'https://kannada.news18.com/rss/state.xml',
+    'https://kannada.hindustantimes.com/rss/karnataka'
 ];
 
-// Using a free RSS-to-JSON converter to avoid CORS issues
-const API_URL = "https://api.rss2json.com/v1/api.json?rss_url=";
+async function updateNews() {
+    let allNews = [];
+    const proxy = "https://api.rss2json.com/v1/api.json?rss_url=";
 
-async function fetchAllNews() {
-    const wall = document.getElementById('newsWall');
-    const loader = document.getElementById('loading');
-    let allArticles = [];
-
-    try {
-        for (let feedUrl of FEEDS) {
-            const response = await fetch(API_URL + encodeURIComponent(feedUrl));
-            const data = await response.json();
-            if (data.status === 'ok') {
-                allArticles = [...allArticles, ...data.items];
-            }
-        }
-
-        // Limit to top 30 trending/fresh stories
-        allArticles = allArticles.slice(0, 30);
-        
-        loader.style.display = 'none';
-        renderNews(allArticles);
-    } catch (error) {
-        loader.innerText = "ಸುದ್ದಿ ಲೋಡ್ ಮಾಡುವಲ್ಲಿ ವಿಫಲವಾಗಿದೆ.";
+    for (let url of SOURCES) {
+        try {
+            const res = await fetch(proxy + encodeURIComponent(url));
+            const data = await res.json();
+            if (data.status === 'ok') allNews = [...allNews, ...data.items];
+        } catch (e) { console.log("Source failed, skipping..."); }
     }
+
+    // Sort by date and take 40+ items
+    allNews.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+    renderFeed(allNews.slice(0, 45));
 }
 
-function renderNews(articles) {
-    const wall = document.getElementById('newsWall');
-    wall.innerHTML = '';
-
-    articles.forEach((item, index) => {
-        const card = document.createElement('div');
-        card.className = `news-card ${index === 0 ? 'feature-card' : ''}`;
-        
-        // Extracting image or using a premium placeholder
-        const img = item.thumbnail || item.enclosure.link || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800';
-
-        card.innerHTML = `
-            <div class="image-wrapper">
-                <img src="${img}" alt="news">
+function renderFeed(items) {
+    const feed = document.getElementById('newsFeed');
+    feed.innerHTML = items.map(item => `
+        <div class="news-card" onclick="openArticle('${encodeURIComponent(JSON.stringify(item))}')">
+            <img src="${item.thumbnail || 'default.jpg'}" class="card-img">
+            <div class="card-body">
+                <span class="category">${item.categories[0] || 'ಸುದ್ದಿ'}</span>
+                <h3>${item.title}</h3>
+                <p>${item.description.substring(0, 80)}...</p>
             </div>
-            <div class="content">
-                <span class="source">${item.author || 'Karnataka Times'}</span>
-                <h2>${item.title}</h2>
-                <p>${item.description.replace(/<[^>]*>?/gm, '').substring(0, 100)}...</p>
-                <button class="read-btn">ಪೂರ್ಣ ಮಾಹಿತಿ ಓದಿ</button>
-            </div>
-        `;
-
-        // Click opens the original detail page in a new tab
-        card.onclick = () => window.open(item.link, '_blank');
-        wall.appendChild(card);
-    });
+        </div>
+    `).join('');
 }
 
-document.addEventListener('DOMContentLoaded', fetchAllNews);
+function openArticle(data) {
+    const item = JSON.parse(decodeURIComponent(data));
+    document.getElementById('readerSource').innerText = item.author || "Karnataka Times";
+    document.getElementById('fullArticle').innerHTML = `
+        <h1>${item.title}</h1>
+        <img src="${item.thumbnail}" style="width:100%; border-radius:15px;">
+        <div class="article-body">${item.content || item.description}</div>
+        <hr>
+        <p style="text-align:center; color:gray;">ಮೂಲ: ${item.link}</p>
+    `;
+    document.getElementById('readerView').classList.add('active');
+}
+
+// Auto-refresh every 1 hour (3600000ms)
+setInterval(updateNews, 3600000);
+document.addEventListener('DOMContentLoaded', updateNews);
