@@ -1,33 +1,40 @@
-/* The Reader Overlay (Hidden by default) */
-.article-reader {
-    position: fixed;
-    top: 0; left: 100%; /* Start off-screen to the right */
-    width: 100%; height: 100%;
-    background: #0f172a; /* Same as your theme */
-    z-index: 2000;
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+:root {
+    --bg: #0f172a;
+    --gold: #d4af37;
+    --card: rgba(255, 255, 255, 0.05);
+}
+
+body { background: var(--bg); color: white; font-family: 'Noto Serif Kannada', serif; margin: 0; overflow-x: hidden; }
+
+.app-header {
+    background: rgba(0,0,0,0.8); padding: 15px; text-align: center;
+    border-bottom: 2px solid var(--gold); position: sticky; top: 0; z-index: 100;
+}
+
+.logo { font-size: 1.5rem; font-weight: bold; letter-spacing: 2px; }
+.logo span { color: var(--gold); }
+
+.feed { display: flex; flex-direction: column; gap: 15px; padding: 15px; }
+
+.news-card {
+    display: flex; background: var(--card); border-radius: 15px;
+    height: 110px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);
+}
+
+.card-img { width: 35%; object-fit: cover; }
+.card-text { width: 65%; padding: 10px; display: flex; align-items: center; font-size: 0.95rem; line-height: 1.4; }
+
+/* In-App Reader */
+.reader-view {
+    position: fixed; top: 0; left: 100%; width: 100%; height: 100%;
+    background: #0f172a; z-index: 1000; transition: transform 0.4s ease;
     overflow-y: auto;
 }
 
-/* When active, slide into view */
-.article-reader.active {
-    transform: translateX(-100%);
-}
+.reader-view.active { transform: translateX(-100%); }
 
-.reader-header {
-    padding: 15px;
-    background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(10px);
-    display: flex; align-items: center; gap: 20px;
-    position: sticky; top: 0;
-}
+.reader-nav { padding: 15px; background: #000; display: flex; justify-content: space-between; align-items: center; }
+.reader-nav button { background: var(--gold); border: none; padding: 5px 15px; border-radius: 5px; font-weight: bold; }
 
-.back-btn {
-    background: #d4af37; border: none; padding: 8px 15px;
-    border-radius: 5px; color: black; font-weight: bold; cursor: pointer;
-}
-
-.reader-content { padding: 25px; max-width: 700px; margin: 0 auto; }
-.reader-content h1 { font-size: 1.6rem; color: #d4af37; line-height: 1.3; }
-.reader-content img { width: 100%; border-radius: 15px; margin: 20px 0; }
-.article-text { font-size: 1.1rem; line-height: 1.8; color: #cbd5e1; }
+.reader-content { padding: 20px; line-height: 1.8; }
+.reader-content img { width: 100%; border-radius: 10px; margin: 15px 0; }
