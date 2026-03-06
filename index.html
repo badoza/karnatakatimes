@@ -1,14 +1,28 @@
-<header class="luxury-header">
-    <div class="logo">KARNATAKA <span>TIMES</span></div>
-</header>
+<!DOCTYPE html>
+<html lang="kn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Karnataka Times</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Kannada:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="app-header">
+        <div class="logo">KARNATAKA <span>TIMES</span></div>
+        <div id="status" class="status-dot">● LIVE</div>
+    </header>
 
-<main class="news-wall" id="newsFeed"></main>
+    <main class="feed" id="newsFeed"></main>
 
-<div id="articleReader" class="article-reader">
-    <div class="reader-header">
-        <button onclick="closeArticle()" class="back-btn">← ಹಿಂದಕ್ಕೆ</button>
-        <span id="readerSource" class="source-tag"></span>
-    </div>
-    <div id="readerBody" class="reader-content">
+    <div id="reader" class="reader-view">
+        <div class="reader-nav">
+            <button onclick="closeNews()">← ಹಿಂದಕ್ಕೆ</button>
+            <span id="sourceInfo"></span>
         </div>
-</div>
+        <div id="readerContent" class="reader-content"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
