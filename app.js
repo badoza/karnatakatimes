@@ -1,26 +1,29 @@
 // ==========================================
-// PUT YOUR JSONBIN ID HERE 
+// PUT YOUR JSONBIN DETAILS HERE 
 // ==========================================
 const BIN_ID = 'YOUR_BIN_ID_HERE'; 
-const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}?meta=false`;
-// ==========================================
+const MASTER_KEY = 'YOUR_MASTER_KEY_HERE'; 
+const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}/latest`;
 
 // --- PUT YOUR YOUTUBE LIVE VIDEO ID HERE ---
-// Example: If link is https://www.youtube.com/watch?v=jfKfPfyJRdk
-// The ID is: jfKfPfyJRdk
 const YOUTUBE_VIDEO_ID = 'YOUR_YOUTUBE_ID_HERE'; 
-// -------------------------------------------
+// ==========================================
 
 let globalNews = [];
 
-// Fetch data from database
+// 1. Fetch data from database (FIXED JSONBIN RECORD BUG)
 async function fetchMyNews() {
     try {
-        const response = await fetch(API_URL);
+        const response = await fetch(API_URL, {
+            headers: { 'X-Master-Key': MASTER_KEY }
+        });
+        
         if (!response.ok) throw new Error("Could not connect to database");
         
         const data = await response.json();
-        globalNews = data.articles || [];
+        
+        // JSONBin v3 stores data inside the 'record' object
+        globalNews = data.record.articles || [];
         
         if (globalNews.length > 0) {
             renderWebsite('ALL');
@@ -34,14 +37,14 @@ async function fetchMyNews() {
     }
 }
 
-// Menu Filtering Logic
+// 2. Menu Filtering Logic
 window.filterNews = function(category, element) {
     document.querySelectorAll('.nav-menu a').forEach(el => el.classList.remove('active'));
     if(element) element.classList.add('active');
     renderWebsite(category);
 };
 
-// Render layout dynamically
+// 3. Render layout dynamically
 function renderWebsite(categoryFilter) {
     const heroHeader = document.getElementById('heroHeader');
     const heroSection = document.getElementById('heroSection');
@@ -49,19 +52,14 @@ function renderWebsite(categoryFilter) {
     const heroTitleText = document.getElementById('heroTitleText');
     const gridTitle = document.getElementById('gridTitle');
 
-    // 1. Isolate the news for the chosen category
     const displayNews = categoryFilter === 'ALL' 
         ? globalNews 
         : globalNews.filter(a => a.category === categoryFilter);
 
-    // 2. Find the Hero Placements WITHIN this specific category
     const heroMain = displayNews.find(a => a.placement === 'hero-main');
     const heroSides = displayNews.filter(a => a.placement === 'hero-side').slice(0, 2);
-    
-    // Standard news are the ones NOT acting as the current hero/sides
     const standardNews = displayNews.filter(a => a !== heroMain && !heroSides.includes(a));
 
-    // Update Section Titles
     if (categoryFilter === 'ALL') {
         heroTitleText.innerHTML = 'ತಾಜಾ ಸುದ್ದಿಗಳು <span>(TOP STORIES)</span>';
         gridTitle.innerHTML = 'ಇತರೆ ವಾರ್ತೆಗಳು <span>(MORE NEWS)</span>';
@@ -70,7 +68,6 @@ function renderWebsite(categoryFilter) {
         gridTitle.innerHTML = `ಇತರೆ <span>(${categoryFilter} NEWS)</span>`;
     }
 
-    // 3. Draw Hero Banners (If this category has them)
     if (heroMain) {
         heroHeader.style.display = 'block';
         heroSection.style.display = 'grid';
@@ -95,12 +92,10 @@ function renderWebsite(categoryFilter) {
             </div>
         `;
     } else {
-        // Hide top section if this category doesn't have big stories yet
         heroHeader.style.display = 'none';
         heroSection.style.display = 'none';
     }
 
-    // 4. Draw Standard Grid
     renderGrid(standardNews, gridSection);
 }
 
@@ -121,7 +116,7 @@ function renderGrid(articles, container) {
     `).join('');
 }
 
-// --- ARTICLE MODAL LOGIC ---
+// 4. ARTICLE MODAL LOGIC
 window.openModal = function(id) {
     const article = globalNews.find(a => a.id === id);
     if(!article) return;
@@ -143,20 +138,80 @@ window.closeModal = function(event) {
     document.body.style.overflow = 'auto'; 
 };
 
-// --- LIVE TV YOUTUBE LOGIC ---
+// ==========================================
+// 5. DRAGGABLE LIVE TV LOGIC
+// ==========================================
+const floatingVideo = document.getElementById("floatingVideo");
+const dragHandle = document.getElementById("videoDragHandle");
+
+let isDragging = false;
+let currentX;
+let currentY;
+let initialX;
+let initialY;
+let xOffset = 0;
+let yOffset = 0;
+
+// Open Video (Unmuted Autoplay works because it's triggered by a click)
 window.openLiveVideo = function() {
-    // Adding autoplay=1 and mute=0. 
+    // autoplay=1 ensures it plays. mute=0 ensures sound is on.
     document.getElementById('youtubeIframe').src = `https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?autoplay=1&mute=0`;
-    document.getElementById('videoModal').classList.add('active');
-    document.body.style.overflow = 'hidden';
+    floatingVideo.classList.add('active');
 };
 
 window.closeVideo = function(event) {
     if (event) event.preventDefault();
-    // Clear the src to stop the video/audio playing in the background
-    document.getElementById('youtubeIframe').src = ""; 
-    document.getElementById('videoModal').classList.remove('active');
-    document.body.style.overflow = 'auto';
+    document.getElementById('youtubeIframe').src = ""; // Stops the video
+    floatingVideo.classList.remove('active');
 };
+
+// Dragging Mechanics
+dragHandle.addEventListener("mousedown", dragStart);
+document.addEventListener("mouseup", dragEnd);
+document.addEventListener("mousemove", drag);
+
+// Mobile Touch Support for dragging
+dragHandle.addEventListener("touchstart", dragStart, {passive: false});
+document.addEventListener("touchend", dragEnd);
+document.addEventListener("touchmove", drag, {passive: false});
+
+function dragStart(e) {
+    if (e.type === "touchstart") {
+        initialX = e.touches[0].clientX - xOffset;
+        initialY = e.touches[0].clientY - yOffset;
+    } else {
+        initialX = e.clientX - xOffset;
+        initialY = e.clientY - yOffset;
+    }
+    if (e.target === dragHandle || e.target.parentNode === dragHandle) {
+        isDragging = true;
+    }
+}
+
+function dragEnd(e) {
+    initialX = currentX;
+    initialY = currentY;
+    isDragging = false;
+}
+
+function drag(e) {
+    if (isDragging) {
+        e.preventDefault();
+        if (e.type === "touchmove") {
+            currentX = e.touches[0].clientX - initialX;
+            currentY = e.touches[0].clientY - initialY;
+        } else {
+            currentX = e.clientX - initialX;
+            currentY = e.clientY - initialY;
+        }
+        xOffset = currentX;
+        yOffset = currentY;
+        setTranslate(currentX, currentY, floatingVideo);
+    }
+}
+
+function setTranslate(xPos, yPos, el) {
+    el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
+}
 
 document.addEventListener('DOMContentLoaded', fetchMyNews);
