@@ -1,8 +1,8 @@
 // ==========================================
 // PUT YOUR JSONBIN DETAILS HERE 
 // ==========================================
-const BIN_ID = 'YOUR_BIN_ID_HERE'; 
-const MASTER_KEY = 'YOUR_MASTER_KEY_HERE'; 
+const BIN_ID = '69bcdb8aaa77b81da9ffa8f5'; 
+const MASTER_KEY = '$2a$10$nzexZyI4UJasFz0OxbIg/u7ssJFZrqheHjEfZkwzHIjOMtqbqEMS2'; 
 const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}/latest`;
 
 // --- PUT YOUR YOUTUBE LIVE VIDEO ID HERE ---
