@@ -1,3 +1,29 @@
+let globalNews = [];
+
+// --- PASTE YOUR BIN ID HERE ---
+const BIN_ID = '69bcdb8aaa77b81da9ffa8f5'; 
+// ------------------------------
+
+// 1. Fetch data once when the page loads
+async function initWebsite() {
+    try {
+        // Fetch from JSONBin API
+        const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`);
+        const data = await response.json();
+        
+        // JSONBin wraps our data in 'record'
+        globalNews = data.record.articles; 
+        
+        // Render 'Home' view initially
+        renderView('ALL'); 
+    } catch (error) {
+        console.error("Error loading news database:", error);
+        document.getElementById('heroSection').innerHTML = '<p style="text-align:center; padding: 50px; color: red;">ಸುದ್ದಿಗಳನ್ನು ಲೋಡ್ ಮಾಡುವಲ್ಲಿ ದೋಷ ಉಂಟಾಗಿದೆ.</p>';
+    }
+}
+
+// ... (KEEP THE REST OF YOUR APP.JS CODE EXACTLY THE SAME BELOW THIS) ...
+
 let globalNews = []; // Stores all news in memory
 
 // 1. Fetch data once when the page loads
