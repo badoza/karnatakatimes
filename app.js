@@ -6,9 +6,9 @@ const MASTER_KEY = '$2a$10$nzexZyI4UJasFz0OxbIg/u7ssJFZrqheHjEfZkwzHIjOMtqbqEMS2
 const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}/latest`;
 
 // ==========================================
-// LIVE TV CONFIGURATION (Public TV Kannada)
+// LIVE TV CONFIGURATION (Direct Video ID)
 // ==========================================
-const YOUTUBE_CHANNEL_ID = 'UCl-OodciBGZ0k8K8rBZGe4w'; 
+const YOUTUBE_VIDEO_ID = 'HEci3TiKZwA'; 
 
 let globalNews = [];
 
@@ -153,8 +153,8 @@ let xOffset = 0;
 let yOffset = 0;
 
 window.openLiveVideo = function() {
-    // Uses the Channel ID to automatically find the live stream, plays it immediately with sound!
-    document.getElementById('youtubeIframe').src = `https://www.youtube.com/embed/live_stream?channel=${YOUTUBE_CHANNEL_ID}&autoplay=1&mute=0`;
+    // Uses the direct Video ID provided by you!
+    document.getElementById('youtubeIframe').src = `https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?autoplay=1&mute=0`;
     floatingVideo.classList.add('active');
 };
 
