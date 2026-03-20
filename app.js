@@ -6,9 +6,9 @@ const MASTER_KEY = '$2a$10$nzexZyI4UJasFz0OxbIg/u7ssJFZrqheHjEfZkwzHIjOMtqbqEMS2
 const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}/latest`;
 
 // ==========================================
-// LIVE TV CONFIGURATION (TV9 Kannada)
+// LIVE TV CONFIGURATION (Public TV Kannada)
 // ==========================================
-const YOUTUBE_CHANNEL_ID = 'UC8dnBi4WUErqYQHZ4PfsLTg'; 
+const YOUTUBE_CHANNEL_ID = 'UCl-OodciBGZ0k8K8rBZGe4w'; 
 
 let globalNews = [];
 
