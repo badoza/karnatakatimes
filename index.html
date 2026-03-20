@@ -4,43 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Karnataka Times - Latest News</title>
-    
     <link rel="stylesheet" href="style.css">
-    
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Kannada:wght@400;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
     <header class="main-header">
         <div class="logo">KARNATAKA <span>TIMES</span></div>
-        <nav class="nav-menu">
-            <a href="#" class="active">Home</a>
-            <a href="#">News</a>
-            <a href="#">Auto</a>
-            <a href="#">Finance</a>
-            <a href="#">Govt Updates</a>
-            <a href="#">Schemes</a>
+        <nav class="nav-menu" id="navMenu">
+            <a href="#" class="active" onclick="filterNews('ALL', this)">Home</a>
+            <a href="#" onclick="filterNews('STATE', this)">State</a>
+            <a href="#" onclick="filterNews('NATION', this)">Nation</a>
+            <a href="#" onclick="filterNews('INTERNATIONAL', this)">International</a>
+            <a href="#" onclick="filterNews('AUTO', this)">Auto</a>
+            <a href="#" onclick="filterNews('FINANCE', this)">Finance</a>
+            <a href="#" onclick="filterNews('SCHEMES', this)">Schemes</a>
         </nav>
         <div class="live-btn">● LIVE</div>
     </header>
 
     <div class="container">
         
-        <section class="section-header">
+        <section class="section-header" id="heroHeader">
             <h2>ತಾಜಾ ಸುದ್ದಿಗಳು <span>(LATEST)</span></h2>
             <div class="heading-line"></div>
         </section>
 
-        <section class="bento-hero">
-            <p style="text-align: center; width: 100%; padding: 50px; color: #64748b;">ಸುದ್ದಿಗಳನ್ನು ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ... (Loading news...)</p>
+        <section class="bento-hero" id="heroSection">
+            <p style="text-align:center; padding: 50px;">Loading...</p>
         </section>
 
         <section class="section-header">
-            <h2>ಇತರೆ ವಾರ್ತೆಗಳು <span>(MORE NEWS)</span></h2>
+            <h2 id="gridTitle">ಇತರೆ ವಾರ್ತೆಗಳು <span>(MORE NEWS)</span></h2>
             <div class="heading-line"></div>
         </section>
 
-        <section class="news-grid">
+        <section class="news-grid" id="gridSection">
             </section>
 
     </div>
@@ -49,11 +48,10 @@
         <div class="footer-grid">
             <div class="footer-about">
                 <h3>KARNATAKA <span>TIMES</span></h3>
-                <p>Karnataka Times is a 24-hour Kannada news website, bringing you the latest breaking news and updates from every industry. Committed to transparent and responsible journalism.</p>
+                <p>Karnataka Times is a 24-hour Kannada news website, bringing you the latest breaking news and updates from every industry.</p>
             </div>
             <div class="footer-links">
                 <h4>Quick Links</h4>
-                <a href="#">Editorial Standards</a>
                 <a href="#">Contact Us</a>
                 <a href="#">About Us</a>
             </div>
@@ -70,6 +68,5 @@
     </footer>
 
     <script src="app.js"></script>
-
 </body>
 </html>
