@@ -80,12 +80,13 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="videoModal" onclick="closeVideo(event)">
-        <div class="modal-content video-wrapper" onclick="event.stopPropagation()">
-            <button class="close-btn" onclick="closeVideo(event)">&times;</button>
-            <div class="iframe-container">
-                <iframe id="youtubeIframe" src="" title="Live TV" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-            </div>
+    <div id="floatingVideo" class="floating-video">
+        <div class="video-header" id="videoDragHandle">
+            <span>🔴 LIVE TV (Drag me)</span>
+            <button class="video-close-btn" onclick="closeVideo(event)">&times;</button>
+        </div>
+        <div class="iframe-container">
+            <iframe id="youtubeIframe" src="" title="Live TV" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </div>
     </div>
 
