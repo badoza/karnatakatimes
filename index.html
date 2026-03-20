@@ -12,25 +12,26 @@
     <header class="main-header">
         <div class="logo">KARNATAKA <span>TIMES</span></div>
         <nav class="nav-menu" id="navMenu">
-            <a href="#" class="active" onclick="location.reload()">Home</a>
-            <a href="#">State</a>
-            <a href="#">Nation</a>
-            <a href="#">Auto</a>
-            <a href="#">Finance</a>
-            <a href="#">Schemes</a>
+            <a href="#" class="active" onclick="filterNews('ALL', this)">Home</a>
+            <a href="#" onclick="filterNews('STATE', this)">State</a>
+            <a href="#" onclick="filterNews('NATIONAL', this)">National</a>
+            <a href="#" onclick="filterNews('INTERNATIONAL', this)">International</a>
+            <a href="#" onclick="filterNews('SPORTS', this)">Sports</a>
+            <a href="#" onclick="filterNews('AUTO', this)">Auto</a>
+            <a href="#" onclick="filterNews('FINANCE', this)">Finance</a>
         </nav>
         <div class="live-btn">● LIVE</div>
     </header>
 
     <div class="container">
         <section class="section-header" id="heroHeader">
-            <h2>ತಾಜಾ ಸುದ್ದಿಗಳು <span>(LIVE NEWS)</span></h2>
+            <h2>ತಾಜಾ ಸುದ್ದಿಗಳು <span>(TOP STORIES)</span></h2>
             <div class="heading-line"></div>
         </section>
 
         <section class="bento-hero" id="heroSection">
             <p style="text-align:center; padding: 50px; font-weight: bold; color: #EA5335; grid-column: 1/-1;">
-                ಲೈವ್ ಸುದ್ದಿಗಳನ್ನು ತರಲಾಗುತ್ತಿದೆ... (Fetching Live News...)
+                ಸುದ್ದಿಗಳನ್ನು ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ... (Loading news...)
             </p>
         </section>
 
@@ -47,7 +48,7 @@
         <div class="footer-grid">
             <div class="footer-about">
                 <h3>KARNATAKA <span>TIMES</span></h3>
-                <p>Karnataka Times is a 24-hour Kannada news platform bringing you the latest live updates, stories, and information automatically fetched from verified sources.</p>
+                <p>Karnataka Times is a 24-hour Kannada news platform bringing you the latest live updates, stories, and information directly from our newsroom.</p>
             </div>
             <div class="footer-links">
                 <h4>Quick Links</h4>
@@ -72,15 +73,13 @@
             <button class="close-btn" onclick="closeModal(event)">&times;</button>
             <img src="" id="modalImg" class="modal-image" alt="News Image">
             <div class="modal-body">
-                <div class="modal-meta" id="modalMeta">Source | Date</div>
+                <div class="modal-meta" id="modalMeta">Category | Date</div>
                 <h2 class="modal-title" id="modalTitle">News Title</h2>
-                <div class="modal-text" id="modalText">Loading...</div>
-                <a href="#" target="_blank" id="modalLink" class="read-full-btn">ಮೂಲ ವೆಬ್‌ಸೈಟ್‌ನಲ್ಲಿ ಓದಿ (Read Full Story)</a>
+                <div class="modal-text" id="modalText">Article content goes here...</div>
             </div>
         </div>
     </div>
 
     <script src="app.js"></script>
-
 </body>
 </html>
