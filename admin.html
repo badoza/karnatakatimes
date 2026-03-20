@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Karnataka Times - Admin Portal</title>
+    <style>
+        body { font-family: sans-serif; background: #e2e8f0; padding: 40px; }
+        .admin-box { background: white; max-width: 600px; margin: auto; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h2 { color: #0f172a; border-bottom: 2px solid #EA5335; padding-bottom: 10px; }
+        input, textarea, select { width: 100%; padding: 10px; margin: 10px 0 20px; border: 1px solid #cbd5e1; border-radius: 5px; box-sizing: border-box;}
+        button { background: #EA5335; color: white; padding: 15px; border: none; width: 100%; font-size: 16px; font-weight: bold; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #d94b30; }
+        #status { margin-top: 15px; font-weight: bold; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <div class="admin-box">
+        <h2>Publish New Article</h2>
+        
+        <label>Title (ಶೀರ್ಷಿಕೆ)</label>
+        <input type="text" id="title" placeholder="Enter news title">
+
+        <label>Category</label>
+        <select id="category">
+            <option value="ರಾಜ್ಯ">State (ರಾಜ್ಯ)</option>
+            <option value="ರಾಷ್ಟ್ರೀಯ">National (ರಾಷ್ಟ್ರೀಯ)</option>
+            <option value="ಕ್ರೀಡೆ">Sports (ಕ್ರೀಡೆ)</option>
+        </select>
+
+        <label>Image URL</label>
+        <input type="text" id="image" placeholder="https://example.com/image.jpg">
+
+        <label>Content</label>
+        <textarea id="content" rows="4" placeholder="Enter full news text..."></textarea>
+
+        <button onclick="publishNews()">Publish to Website</button>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        const GITHUB_USER = 'YOUR_GITHUB_USERNAME'; 
+        const REPO_NAME = 'YOUR_REPOSITORY_NAME'; 
+        const PAT = 'YOUR_PERSONAL_ACCESS_TOKEN'; 
+        const FILE_PATH = 'news.json';
+        // ---------------------
+
+        async function publishNews() {
+            const statusDiv = document.getElementById('status');
+            statusDiv.style.color = 'blue';
+            statusDiv.innerText = "Publishing... Please wait.";
+
+            const newArticle = {
+                id: Date.now(),
+                title: document.getElementById('title').value,
+                category: document.getElementById('category').value,
+                date: new Date().toISOString().split('T')[0],
+                image: document.getElementById('image').value,
+                content: document.getElementById('content').value
+            };
+
+            const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${REPO_NAME}/contents/${FILE_PATH}`;
+
+            try {
+                // 1. Fetch the current news.json from GitHub to get its 'sha' (required to update files)
+                const getResponse = await fetch(apiUrl, {
+                    headers: { 'Authorization': `token ${PAT}` }
+                });
+                const currentData = await getResponse.json();
+                
+                // Decode current JSON content
+                const currentJson = JSON.parse(decodeURIComponent(escape(atob(currentData.content))));
+
+                // 2. Add the new article to the database
+                currentJson.articles.push(newArticle);
+
+                // 3. Encode the updated JSON back to Base64
+                const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(currentJson, null, 2))));
+
+                // 4. Push the update back to GitHub
+                const updateResponse = await fetch(apiUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${PAT}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: "Admin Portal: Added new article",
+                        content: updatedContent,
+                        sha: currentData.sha // We must provide the old SHA to overwrite it
+                    })
+                });
+
+                if (updateResponse.ok) {
+                    statusDiv.style.color = 'green';
+                    statusDiv.innerText = "Success! The article is now live on Karnataka Times.";
+                    // Clear form
+                    document.getElementById('title').value = '';
+                    document.getElementById('image').value = '';
+                    document.getElementById('content').value = '';
+                } else {
+                    throw new Error("Failed to push update to GitHub.");
+                }
+
+            } catch (error) {
+                console.error(error);
+                statusDiv.style.color = 'red';
+                statusDiv.innerText = "Error publishing. Check console for details.";
+            }
+        }
+    </script>
+</body>
+</html>
