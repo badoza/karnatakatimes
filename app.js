@@ -5,13 +5,14 @@ const BIN_ID = '69bcdb8aaa77b81da9ffa8f5';
 const MASTER_KEY = '$2a$10$nzexZyI4UJasFz0OxbIg/u7ssJFZrqheHjEfZkwzHIjOMtqbqEMS2'; 
 const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}/latest`;
 
-// --- PUT YOUR YOUTUBE LIVE VIDEO ID HERE ---
-const YOUTUBE_VIDEO_ID = 'YOUR_YOUTUBE_ID_HERE'; 
 // ==========================================
+// LIVE TV CONFIGURATION (TV9 Kannada)
+// ==========================================
+const YOUTUBE_CHANNEL_ID = 'UC8dnBi4WUErqYQHZ4PfsLTg'; 
 
 let globalNews = [];
 
-// 1. Fetch data from database (FIXED JSONBIN RECORD BUG)
+// 1. Fetch data from database 
 async function fetchMyNews() {
     try {
         const response = await fetch(API_URL, {
@@ -22,7 +23,6 @@ async function fetchMyNews() {
         
         const data = await response.json();
         
-        // JSONBin v3 stores data inside the 'record' object
         globalNews = data.record.articles || [];
         
         if (globalNews.length > 0) {
@@ -152,16 +152,15 @@ let initialY;
 let xOffset = 0;
 let yOffset = 0;
 
-// Open Video (Unmuted Autoplay works because it's triggered by a click)
 window.openLiveVideo = function() {
-    // autoplay=1 ensures it plays. mute=0 ensures sound is on.
-    document.getElementById('youtubeIframe').src = `https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?autoplay=1&mute=0`;
+    // Uses the Channel ID to automatically find the live stream, plays it immediately with sound!
+    document.getElementById('youtubeIframe').src = `https://www.youtube.com/embed/live_stream?channel=${YOUTUBE_CHANNEL_ID}&autoplay=1&mute=0`;
     floatingVideo.classList.add('active');
 };
 
 window.closeVideo = function(event) {
     if (event) event.preventDefault();
-    document.getElementById('youtubeIframe').src = ""; // Stops the video
+    document.getElementById('youtubeIframe').src = ""; // Stops video playback
     floatingVideo.classList.remove('active');
 };
 
@@ -170,7 +169,6 @@ dragHandle.addEventListener("mousedown", dragStart);
 document.addEventListener("mouseup", dragEnd);
 document.addEventListener("mousemove", drag);
 
-// Mobile Touch Support for dragging
 dragHandle.addEventListener("touchstart", dragStart, {passive: false});
 document.addEventListener("touchend", dragEnd);
 document.addEventListener("touchmove", drag, {passive: false});
