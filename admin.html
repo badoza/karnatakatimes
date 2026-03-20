@@ -1,8 +1,73 @@
-<script>
-        // --- YOUR JSONBIN CONFIGURATION ---
-        const BIN_ID = '69bcdb8aaa77b81da9ffa8f5'; 
-        const MASTER_KEY = '$2a$10$nzexZyI4UJasFz0OxbIg/u7ssJFZrqheHjEfZkwzHIjOMtqbqEMS2'; 
-        // ----------------------------------
+<!DOCTYPE html>
+<html lang="kn">
+<head>
+    <meta charset="UTF-8">
+    <title>Karnataka Times - Admin Portal</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #e2e8f0; padding: 40px; }
+        .admin-box { background: white; max-width: 700px; margin: auto; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { color: #0f172a; border-bottom: 3px solid #EA5335; padding-bottom: 10px; }
+        label { font-weight: bold; margin-top: 15px; display: block; color: #1e293b; }
+        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #cbd5e1; border-radius: 5px; box-sizing: border-box;}
+        .upload-group { display: flex; gap: 15px; background: #f8fafc; padding: 15px; border: 1px dashed #cbd5e1; border-radius: 5px;}
+        .upload-group div { flex: 1; }
+        button { background: #EA5335; color: white; padding: 15px; border: none; width: 100%; font-size: 16px; font-weight: bold; border-radius: 5px; cursor: pointer; margin-top: 20px;}
+        button:hover { background: #d94b30; }
+        #status { margin-top: 15px; font-weight: bold; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <div class="admin-box">
+        <h2>Publish Karnataka Times News</h2>
+        
+        <label>Title (ಶೀರ್ಷಿಕೆ)</label>
+        <input type="text" id="title" placeholder="Enter headline...">
+
+        <label>Category (ವರ್ಗ)</label>
+        <select id="category">
+            <option value="STATE">State (ರಾಜ್ಯ)</option>
+            <option value="NATIONAL">National (ರಾಷ್ಟ್ರೀಯ)</option>
+            <option value="INTERNATIONAL">International (ಅಂತಾರಾಷ್ಟ್ರೀಯ)</option>
+            <option value="SPORTS">Sports (ಕ್ರೀಡೆ)</option>
+            <option value="AUTO">Auto (ಆಟೋಮೊಬೈಲ್)</option>
+            <option value="FINANCE">Finance (ಹಣಕಾಸು)</option>
+            <option value="SCHEMES">Schemes (ಯೋಜನೆಗಳು)</option>
+        </select>
+
+        <label>Placement on Website</label>
+        <select id="placement">
+            <option value="standard">Normal Story (Bottom Grid)</option>
+            <option value="hero-main">Big Story (Main Top Banner)</option>
+            <option value="hero-side">Sub Story (Small Top Banner)</option>
+        </select>
+
+        <label>Image Source (Choose ONE)</label>
+        <div class="upload-group">
+            <div>
+                <small>Option 1: Paste Image URL</small>
+                <input type="text" id="imageUrl" placeholder="https://...">
+            </div>
+            <div>
+                <small>Option 2: Upload from Computer</small>
+                <input type="file" id="imageFile" accept="image/png, image/jpeg, image/webp">
+            </div>
+        </div>
+
+        <label>Full Content (ಸಂಪೂರ್ಣ ಸುದ್ದಿ)</label>
+        <textarea id="content" rows="6" placeholder="Write your full 2-paragraph article here..."></textarea>
+
+        <button onclick="publishNews()" id="pubBtn">Publish Instantly</button>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        // ==========================================
+        // PUT YOUR JSONBIN DETAILS HERE
+        // ==========================================
+        const BIN_ID = 'YOUR_BIN_ID_HERE'; 
+        const MASTER_KEY = 'YOUR_MASTER_KEY_HERE'; 
+        // ==========================================
 
         function getBase64(file) {
            return new Promise((resolve, reject) => {
@@ -14,74 +79,70 @@
         }
 
         async function publishNews() {
-            const statusDiv = document.getElementById('status');
+            const status = document.getElementById('status');
             const btn = document.getElementById('pubBtn');
-            btn.disabled = true;
-            statusDiv.style.color = 'blue';
-            statusDiv.innerText = "Connecting to JSONBin... Please wait.";
+            btn.disabled = true; 
+            status.style.color = 'blue'; 
+            status.innerText = "Publishing to JSONBin... Please wait.";
 
             try {
-                let finalImage = "";
-                const fileInput = document.getElementById('imageFile').files[0];
-                const urlInput = document.getElementById('imageUrl').value;
-
-                if (fileInput) finalImage = await getBase64(fileInput);
-                else if (urlInput) finalImage = urlInput;
-                else finalImage = "https://images.unsplash.com/photo-1585007600263-ad1f34741891?w=800"; 
+                let finalImg = "https://images.unsplash.com/photo-1585007600263-ad1f34741891?w=800"; // Fallback image
+                const file = document.getElementById('imageFile').files[0];
+                const url = document.getElementById('imageUrl').value;
+                
+                if (file) finalImg = await getBase64(file);
+                else if (url) finalImg = url;
 
                 const newArticle = {
                     id: Date.now(),
                     title: document.getElementById('title').value,
                     category: document.getElementById('category').value,
                     placement: document.getElementById('placement').value,
-                    date: new Date().toLocaleDateString('en-GB'),
-                    author: "Admin",
-                    image: finalImage,
-                    content: document.getElementById('content').value
+                    image: finalImg,
+                    content: document.getElementById('content').value,
+                    date: new Date().toLocaleDateString('kn-IN', { day: 'numeric', month: 'short', year: 'numeric' })
                 };
 
                 const apiUrl = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
-
-                // 1. Fetch current data from JSONBin
-                const getResponse = await fetch(apiUrl + '/latest', { 
-                    headers: { 'X-Master-Key': MASTER_KEY } 
-                });
                 
-                if(!getResponse.ok) throw new Error("Could not connect to JSONBin. Check your Bin ID and Key.");
-                
-                const currentData = await getResponse.json();
-                
-                // JSONBin stores your data inside a "record" object
-                let currentJson = currentData.record; 
+                // Fetch the current database
+                const getRes = await fetch(apiUrl + '/latest', { headers: { 'X-Master-Key': MASTER_KEY } });
+                if (!getRes.ok) throw new Error("Could not connect to JSONBin. Check your keys.");
+                const currentData = await getRes.json();
+                let db = currentData.record;
 
-                // 2. Add new article to the top
-                currentJson.articles.unshift(newArticle);
+                // Make sure the articles array exists
+                if (!db.articles) db.articles = [];
 
-                // 3. Push the updated data back to JSONBin
-                const updateResponse = await fetch(apiUrl, {
+                // Add the new article to the top of the list
+                db.articles.unshift(newArticle);
+
+                // Save it back to JSONBin
+                const putRes = await fetch(apiUrl, {
                     method: 'PUT',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'X-Master-Key': MASTER_KEY 
-                    },
-                    body: JSON.stringify(currentJson)
+                    headers: { 'Content-Type': 'application/json', 'X-Master-Key': MASTER_KEY },
+                    body: JSON.stringify(db)
                 });
 
-                if (updateResponse.ok) {
-                    statusDiv.style.color = 'green';
-                    statusDiv.innerText = "Success! The news is live instantly.";
+                if (putRes.ok) {
+                    status.style.color = 'green'; 
+                    status.innerText = "Success! The news is live on your website.";
+                    // Clear the form
                     document.getElementById('title').value = '';
+                    document.getElementById('content').value = '';
                     document.getElementById('imageUrl').value = '';
                     document.getElementById('imageFile').value = '';
-                    document.getElementById('content').value = '';
-                } else throw new Error("Failed to update JSONBin.");
+                } else {
+                    throw new Error("Failed to save to JSONBin.");
+                }
 
-            } catch (error) {
-                console.error(error);
-                statusDiv.style.color = 'red';
-                statusDiv.innerText = "Error: " + error.message;
+            } catch (err) {
+                status.style.color = 'red'; 
+                status.innerText = "Error: " + err.message;
             } finally {
                 btn.disabled = false;
             }
         }
     </script>
+</body>
+</html>
