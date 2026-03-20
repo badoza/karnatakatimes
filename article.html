@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="kn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ಸುದ್ದಿ ಓದಿ - Karnataka Times</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Kannada:wght@400;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .article-container { max-width: 800px; margin: 40px auto; padding: 40px; background: #fff; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .article-title { font-size: 2rem; color: #0f172a; margin-bottom: 15px; line-height: 1.4; }
+        .article-meta { color: #64748b; margin-bottom: 25px; font-size: 0.95rem; font-weight: 600; display: flex; justify-content: space-between; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; }
+        .article-source { color: #EA5335; }
+        .article-image { width: 100%; height: 400px; object-fit: cover; border-radius: 10px; margin-bottom: 30px; }
+        .article-content { font-size: 1.15rem; color: #334155; line-height: 1.8; margin-bottom: 40px; }
+        .read-source-btn { display: block; width: 100%; text-align: center; background: #EA5335; color: white; padding: 18px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 1.1rem; transition: background 0.3s; }
+        .read-source-btn:hover { background: #d94b30; }
+        .back-btn { display: inline-block; margin-bottom: 20px; color: #EA5335; text-decoration: none; font-weight: bold; }
+        .back-btn:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="logo">KARNATAKA <span>TIMES</span></div>
+        <nav class="nav-menu">
+            <a href="index.html">Home</a>
+        </nav>
+        <div class="live-btn">● LIVE</div>
+    </header>
+
+    <div class="container">
+        <div class="article-container" id="articleDisplay">
+            <p style="text-align: center;">ಸುದ್ದಿಯನ್ನು ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ... (Loading article...)</p>
+        </div>
+    </div>
+
+    <script>
+        // 1. Get the article data we saved in the browser's memory when the user clicked the card
+        document.addEventListener('DOMContentLoaded', () => {
+            const articleData = localStorage.getItem('kt_current_article');
+            const display = document.getElementById('articleDisplay');
+
+            if (articleData) {
+                const article = JSON.parse(articleData);
+                
+                display.innerHTML = `
+                    <a href="index.html" class="back-btn">← ವಾಪಸ್ ಹೋಗಿ (Back to News)</a>
+                    <h1 class="article-title">${article.title}</h1>
+                    <div class="article-meta">
+                        <span class="article-source">${article.source}</span>
+                        <span>${article.date}</span>
+                    </div>
+                    <img src="${article.image}" class="article-image" alt="News Image">
+                    <div class="article-content">
+                        <p>ಈ ಸುದ್ದಿಯ ಸಂಕ್ಷಿಪ್ತ ವಿವರಣೆ (Summary):</p>
+                        <p style="margin-top: 15px; background: #f8fafc; padding: 20px; border-left: 4px solid #EA5335;">
+                            ${article.snippet}
+                        </p>
+                    </div>
+                    <a href="${article.link}" target="_blank" class="read-source-btn">
+                        ಮೂಲ ವೆಬ್‌ಸೈಟ್‌ನಲ್ಲಿ ಸಂಪೂರ್ಣ ವರದಿ ಓದಿ (Read Full Story on ${article.source})
+                    </a>
+                `;
+            } else {
+                // If someone accesses this page directly without clicking a card, send them home
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+
+</body>
+</html>
