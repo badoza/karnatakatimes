@@ -25,6 +25,9 @@
 
         <label>Category</label>
         <select id="category">
+            <option value="STATE">State (ರಾಜ್ಯ)</option>
+            <option value="NATION">Nation (ರಾಷ್ಟ್ರೀಯ)</option>
+            <option value="INTERNATIONAL">International (ಅಂತಾರಾಷ್ಟ್ರೀಯ)</option>
             <option value="AUTO">Auto (ಆಟೋಮೊಬೈಲ್)</option>
             <option value="FINANCE">Finance (ಹಣಕಾಸು)</option>
             <option value="SCHEMES">Schemes (ಯೋಜನೆಗಳು)</option>
@@ -59,14 +62,12 @@
 
     <script>
         // --- YOUR GITHUB CONFIGURATION ---
-        // YOU MUST CHANGE THESE 3 LINES FOR IT TO WORK
-        const GITHUB_USER = 'badoza'; 
-        const REPO_NAME = 'karnatakatimes'; 
-        const PAT = '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'; 
+        const GITHUB_USER = 'YOUR_USERNAME'; 
+        const REPO_NAME = 'YOUR_REPO'; 
+        const PAT = 'YOUR_PAT_TOKEN'; 
         const FILE_PATH = 'news.json';
         // ---------------------------------
 
-        // Helper function to convert uploaded image to Base64
         function getBase64(file) {
            return new Promise((resolve, reject) => {
              const reader = new FileReader();
@@ -81,28 +82,23 @@
             const btn = document.getElementById('pubBtn');
             btn.disabled = true;
             statusDiv.style.color = 'blue';
-            statusDiv.innerText = "Processing image and publishing... Please wait.";
+            statusDiv.innerText = "Processing... Please wait.";
 
             try {
-                // Determine Image Source
                 let finalImage = "";
                 const fileInput = document.getElementById('imageFile').files[0];
                 const urlInput = document.getElementById('imageUrl').value;
 
-                if (fileInput) {
-                    finalImage = await getBase64(fileInput); // Convert file to text
-                } else if (urlInput) {
-                    finalImage = urlInput;
-                } else {
-                    finalImage = "https://images.unsplash.com/photo-1585007600263-ad1f34741891?w=800"; // Fallback
-                }
+                if (fileInput) finalImage = await getBase64(fileInput);
+                else if (urlInput) finalImage = urlInput;
+                else finalImage = "https://images.unsplash.com/photo-1585007600263-ad1f34741891?w=800"; 
 
                 const newArticle = {
                     id: Date.now(),
                     title: document.getElementById('title').value,
                     category: document.getElementById('category').value,
                     placement: document.getElementById('placement').value,
-                    date: new Date().toLocaleDateString('en-GB'), // Format: DD/MM/YYYY
+                    date: new Date().toLocaleDateString('en-GB'),
                     author: "Admin",
                     image: finalImage,
                     content: document.getElementById('content').value
@@ -110,29 +106,22 @@
 
                 const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${REPO_NAME}/contents/${FILE_PATH}`;
 
-                // Fetch current JSON
                 const getResponse = await fetch(apiUrl, { headers: { 'Authorization': `token ${PAT}` } });
-                
                 if(!getResponse.ok) throw new Error("Could not find news.json or Token is invalid.");
                 
                 const currentData = await getResponse.json();
-                
-                // Use robust Base64 decoding for Unicode characters (Kannada)
                 const currentJsonText = decodeURIComponent(escape(atob(currentData.content)));
                 let currentJson = JSON.parse(currentJsonText);
 
-                // Add new article to the top of the array
                 currentJson.articles.unshift(newArticle);
 
-                // Re-encode securely
                 const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(currentJson, null, 2))));
 
-                // Push update
                 const updateResponse = await fetch(apiUrl, {
                     method: 'PUT',
                     headers: { 'Authorization': `token ${PAT}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        message: "Added news via Admin Portal",
+                        message: "Added news via Admin",
                         content: updatedContent,
                         sha: currentData.sha
                     })
@@ -140,15 +129,12 @@
 
                 if (updateResponse.ok) {
                     statusDiv.style.color = 'green';
-                    statusDiv.innerText = "Success! GitHub is building your site (takes ~60 seconds).";
-                    // Clear fields
+                    statusDiv.innerText = "Success! Site will update in ~60 seconds.";
                     document.getElementById('title').value = '';
                     document.getElementById('imageUrl').value = '';
                     document.getElementById('imageFile').value = '';
                     document.getElementById('content').value = '';
-                } else {
-                    throw new Error("Failed to push update to GitHub. Check repository permissions.");
-                }
+                } else throw new Error("Failed to push update.");
 
             } catch (error) {
                 console.error(error);
