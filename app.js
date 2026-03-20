@@ -1,128 +1,84 @@
-let globalNews = [];
+// The RSS feed for Google News (Kannada - Karnataka Region)
+const GOOGLE_NEWS_KANNADA = 'https://news.google.com/rss/headlines/section/geo/KA?hl=kn&gl=IN&ceid=IN:kn';
 
-// --- PASTE YOUR BIN ID HERE ---
-const BIN_ID = '69bcdb8aaa77b81da9ffa8f5'; 
-// ------------------------------
+// The free converter API that allows browsers to read the RSS feed
+const API_URL = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(GOOGLE_NEWS_KANNADA)}`;
 
-// 1. Fetch data once when the page loads
-async function initWebsite() {
+// Fallback images in case the news source doesn't provide a high-quality picture
+const fallbackImages = [
+    'https://images.unsplash.com/photo-1585007600263-ad1f34741891?w=800',
+    'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800',
+    'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800'
+];
+
+async function fetchLiveNews() {
     try {
-        // Fetch from JSONBin API
-        const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`);
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error("Failed to fetch live news");
+        
         const data = await response.json();
-        
-        // JSONBin wraps our data in 'record'
-        globalNews = data.record.articles; 
-        
-        // Render 'Home' view initially
-        renderView('ALL'); 
+        const articles = data.items;
+
+        if (articles && articles.length > 0) {
+            renderWebsite(articles);
+        } else {
+            throw new Error("No articles found");
+        }
+
     } catch (error) {
-        console.error("Error loading news database:", error);
-        document.getElementById('heroSection').innerHTML = '<p style="text-align:center; padding: 50px; color: red;">ಸುದ್ದಿಗಳನ್ನು ಲೋಡ್ ಮಾಡುವಲ್ಲಿ ದೋಷ ಉಂಟಾಗಿದೆ.</p>';
+        console.error("Error:", error);
+        document.getElementById('heroSection').innerHTML = '<p style="color:red; text-align:center; padding: 50px;">ಸುದ್ದಿಗಳನ್ನು ಲೋಡ್ ಮಾಡುವಲ್ಲಿ ದೋಷ ಉಂಟಾಗಿದೆ. (Error loading live news)</p>';
     }
 }
 
-// ... (KEEP THE REST OF YOUR APP.JS CODE EXACTLY THE SAME BELOW THIS) ...
-
-let globalNews = []; // Stores all news in memory
-
-// 1. Fetch data once when the page loads
-async function initWebsite() {
-    try {
-        const response = await fetch('news.json?t=' + new Date().getTime());
-        const data = await response.json();
-        globalNews = data.articles;
-        
-        // Render 'Home' view initially
-        renderView('ALL'); 
-    } catch (error) {
-        console.error("Error loading news database:", error);
-    }
-}
-
-// 2. The function triggered by clicking the Nav Menu
-window.filterNews = function(category, element) {
-    // Remove red active color from all links, add to the clicked one
-    document.querySelectorAll('.nav-menu a').forEach(el => el.classList.remove('active'));
-    if(element) element.classList.add('active');
-
-    renderView(category);
-};
-
-// 3. The Logic to display the correct news
-function renderView(categoryFilter) {
-    const heroHeader = document.getElementById('heroHeader');
+function renderWebsite(articles) {
     const heroSection = document.getElementById('heroSection');
     const gridSection = document.getElementById('gridSection');
-    const gridTitle = document.getElementById('gridTitle');
 
-    if (categoryFilter === 'ALL') {
-        // --- SHOW HOME PAGE (Banners + Standard News) ---
-        heroHeader.style.display = 'block';
-        heroSection.style.display = 'grid';
-        gridTitle.innerHTML = 'ಇತರೆ ವಾರ್ತೆಗಳು <span>(MORE NEWS)</span>';
+    // 1. Assign the top 3 stories to the Hero Banners
+    const heroMain = articles[0];
+    const heroSides = [articles[1], articles[2]];
+    
+    // 2. Assign the rest to the standard grid
+    const standardNews = articles.slice(3, 12); // Grab the next 9 articles
 
-        const heroMain = globalNews.find(a => a.placement === 'hero-main');
-        const heroSides = globalNews.filter(a => a.placement === 'hero-side').slice(0, 2);
-        const standardNews = globalNews.filter(a => a.placement === 'standard');
+    // Function to clean up the source name (e.g., removing " - Prajavani" from the title)
+    const cleanTitle = (title) => title.split(' - ')[0];
+    const getSource = (title) => title.split(' - ')[1] || 'Google News';
 
-        // Render Hero
-        if (heroMain) {
-            heroSection.innerHTML = `
-                <article class="hero-card main-story" style="background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.2)), url('${heroMain.image}') center/cover;" onclick="alert('Read: ${heroMain.title}')">
-                    <div class="tag">${heroMain.category}</div>
+    // --- Render Hero Banner ---
+    heroSection.innerHTML = `
+        <article class="hero-card main-story" style="background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.2)), url('${fallbackImages[0]}') center/cover;" onclick="window.open('${heroMain.link}', '_blank')">
+            <div class="tag">LIVE</div>
+            <div class="card-content">
+                <h3>${cleanTitle(heroMain.title)}</h3>
+                <p class="meta">Source: ${getSource(heroMain.title)} | ${heroMain.pubDate.split(' ')[0]}</p>
+            </div>
+        </article>
+        
+        <div class="side-stories">
+            ${heroSides.map((side, index) => `
+                <article class="hero-card side-story" style="background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.1)), url('${fallbackImages[index + 1]}') center/cover;" onclick="window.open('${side.link}', '_blank')">
+                    <div class="tag">TOP STORY</div>
                     <div class="card-content">
-                        <h3>${heroMain.title}</h3>
-                        <p class="meta">By ${heroMain.author} | ${heroMain.date}</p>
+                        <h4>${cleanTitle(side.title)}</h4>
                     </div>
                 </article>
-                <div class="side-stories">
-                    ${heroSides.map(side => `
-                        <article class="hero-card side-story" style="background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.1)), url('${side.image}') center/cover;" onclick="alert('Read: ${side.title}')">
-                            <div class="tag">${side.category}</div>
-                            <div class="card-content"><h4>${side.title}</h4></div>
-                        </article>
-                    `).join('')}
-                </div>
-            `;
-        } else {
-            heroSection.innerHTML = '';
-        }
+            `).join('')}
+        </div>
+    `;
 
-        // Render Grid
-        renderGrid(standardNews);
-
-    } else {
-        // --- SHOW SPECIFIC CATEGORY ONLY ---
-        heroHeader.style.display = 'none'; // Hide big banners
-        heroSection.style.display = 'none';
-        gridTitle.innerHTML = `ವರ್ಗ <span>(${categoryFilter})</span>`;
-
-        // Find all news (banners or standard) that match this category
-        const filteredNews = globalNews.filter(a => a.category === categoryFilter);
-        
-        if (filteredNews.length === 0) {
-            gridSection.innerHTML = '<p style="grid-column: 1/-1; text-align:center;">ಈ ವಿಭಾಗದಲ್ಲಿ ಯಾವುದೇ ಸುದ್ದಿಗಳಿಲ್ಲ.</p>';
-        } else {
-            renderGrid(filteredNews);
-        }
-    }
-}
-
-// Reusable function to draw the grid cards
-function renderGrid(newsArray) {
-    const gridSection = document.getElementById('gridSection');
-    gridSection.innerHTML = newsArray.map(news => `
-        <article class="news-item" onclick="alert('Read: ${news.title}')">
-            <div class="img-placeholder" style="background: url('${news.image}') center/cover;"></div>
-            <div class="item-details">
-                <span style="color:#EA5335; font-size:0.8rem; font-weight:bold;">${news.category}</span>
-                <h4 style="margin-top:5px;">${news.title}</h4>
-                <p class="meta">${news.date}</p>
+    // --- Render Standard Grid ---
+    gridSection.innerHTML = standardNews.map(news => `
+        <article class="news-item" onclick="window.open('${news.link}', '_blank')">
+            <div class="item-details" style="padding: 25px;">
+                <span style="color:#EA5335; font-size:0.8rem; font-weight:bold;">${getSource(news.title).toUpperCase()}</span>
+                <h4 style="margin-top:10px; font-size: 1.1rem;">${cleanTitle(news.title)}</h4>
+                <p class="meta" style="margin-top: 15px;">${news.pubDate.split(' ')[0]}</p>
             </div>
         </article>
     `).join('');
 }
 
-// Start the site
-document.addEventListener('DOMContentLoaded', initWebsite);
+// Start the fetch process as soon as the page loads
+document.addEventListener('DOMContentLoaded', fetchLiveNews);
