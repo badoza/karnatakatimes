@@ -1,7 +1,7 @@
 // ==========================================
 // PUT YOUR JSONBIN ID HERE (Only the ID is needed here)
 // ==========================================
-const BIN_ID = 'YOUR_BIN_ID_HERE'; 
+const BIN_ID = '69bcdb8aaa77b81da9ffa8f5'; 
 const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}?meta=false`;
 // ==========================================
 
