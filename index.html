@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Karnataka Times - Latest News</title>
+    
     <link rel="stylesheet" href="style.css">
+    
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Kannada:wght@400;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -23,8 +25,9 @@
     </header>
 
     <div class="container">
+        
         <section class="section-header" id="heroHeader">
-            <h2>ತಾಜಾ ಸುದ್ದಿಗಳು <span>(LIVE GOOGLE NEWS)</span></h2>
+            <h2>ತಾಜಾ ಸುದ್ದಿಗಳು <span>(LIVE NEWS)</span></h2>
             <div class="heading-line"></div>
         </section>
 
@@ -39,6 +42,7 @@
 
         <section class="news-grid" id="gridSection">
             </section>
+
     </div>
 
     <footer class="main-footer">
@@ -65,6 +69,22 @@
         </div>
     </footer>
 
+    <div class="modal-overlay" id="newsModal" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="close-btn" onclick="closeModal(event)">&times;</button>
+            <img src="" id="modalImg" class="modal-image" alt="News Image">
+            <div class="modal-body">
+                <div class="modal-meta" id="modalMeta">Source | Date</div>
+                <h2 class="modal-title" id="modalTitle">News Title Goes Here</h2>
+                
+                <div class="modal-text" id="modalText">Loading content...</div>
+                
+                <a href="#" target="_blank" id="modalLink" class="read-full-btn">ಮೂಲ ವೆಬ್‌ಸೈಟ್‌ನಲ್ಲಿ ಓದಿ (Read Full Story)</a>
+            </div>
+        </div>
+    </div>
+
     <script src="app.js"></script>
+
 </body>
 </html>
