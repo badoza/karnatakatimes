@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Karnataka Times - Admin Portal</title>
+    <title>Karnataka Times - Advanced Admin</title>
     <style>
-        body { font-family: sans-serif; background: #e2e8f0; padding: 40px; }
-        .admin-box { background: white; max-width: 600px; margin: auto; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        h2 { color: #0f172a; border-bottom: 2px solid #EA5335; padding-bottom: 10px; }
-        input, textarea, select { width: 100%; padding: 10px; margin: 10px 0 20px; border: 1px solid #cbd5e1; border-radius: 5px; box-sizing: border-box;}
-        button { background: #EA5335; color: white; padding: 15px; border: none; width: 100%; font-size: 16px; font-weight: bold; border-radius: 5px; cursor: pointer; }
+        body { font-family: 'Segoe UI', sans-serif; background: #e2e8f0; padding: 40px; }
+        .admin-box { background: white; max-width: 650px; margin: auto; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { color: #0f172a; border-bottom: 3px solid #EA5335; padding-bottom: 10px; }
+        label { font-weight: bold; margin-top: 15px; display: block; color: #1e293b; }
+        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #cbd5e1; border-radius: 5px; box-sizing: border-box;}
+        .image-upload-group { display: flex; gap: 15px; background: #f8fafc; padding: 15px; border-radius: 5px; border: 1px dashed #cbd5e1; }
+        .image-upload-group div { flex: 1; }
+        button { background: #EA5335; color: white; padding: 15px; border: none; width: 100%; font-size: 16px; font-weight: bold; border-radius: 5px; cursor: pointer; margin-top: 20px; }
         button:hover { background: #d94b30; }
         #status { margin-top: 15px; font-weight: bold; text-align: center; }
     </style>
@@ -22,90 +25,137 @@
 
         <label>Category</label>
         <select id="category">
-            <option value="ರಾಜ್ಯ">State (ರಾಜ್ಯ)</option>
-            <option value="ರಾಷ್ಟ್ರೀಯ">National (ರಾಷ್ಟ್ರೀಯ)</option>
-            <option value="ಕ್ರೀಡೆ">Sports (ಕ್ರೀಡೆ)</option>
+            <option value="AUTO">Auto (ಆಟೋಮೊಬೈಲ್)</option>
+            <option value="FINANCE">Finance (ಹಣಕಾಸು)</option>
+            <option value="SCHEMES">Schemes (ಯೋಜನೆಗಳು)</option>
+            <option value="JOBS">Jobs (ಉದ್ಯೋಗ)</option>
         </select>
 
-        <label>Image URL</label>
-        <input type="text" id="image" placeholder="https://example.com/image.jpg">
+        <label>Placement on Website</label>
+        <select id="placement">
+            <option value="standard">Standard Grid (Under Category)</option>
+            <option value="hero-main">Top Banner (Main Big Story)</option>
+            <option value="hero-side">Top Banner (Side Story 1 of 2)</option>
+        </select>
+
+        <label>Image Source (Choose ONE)</label>
+        <div class="image-upload-group">
+            <div>
+                <small>Option 1: Image URL</small>
+                <input type="text" id="imageUrl" placeholder="https://example.com/img.jpg">
+            </div>
+            <div>
+                <small>Option 2: Upload File</small>
+                <input type="file" id="imageFile" accept="image/png, image/jpeg, image/webp">
+            </div>
+        </div>
 
         <label>Content</label>
-        <textarea id="content" rows="4" placeholder="Enter full news text..."></textarea>
+        <textarea id="content" rows="5" placeholder="Enter full news text..."></textarea>
 
-        <button onclick="publishNews()">Publish to Website</button>
+        <button onclick="publishNews()" id="pubBtn">Publish to Website</button>
         <div id="status"></div>
     </div>
 
     <script>
-        // --- CONFIGURATION ---
-        const GITHUB_USER = 'YOUR_GITHUB_USERNAME'; 
-        const REPO_NAME = 'YOUR_REPOSITORY_NAME'; 
-        const PAT = 'YOUR_PERSONAL_ACCESS_TOKEN'; 
+        // --- YOUR GITHUB CONFIGURATION ---
+        // YOU MUST CHANGE THESE 3 LINES FOR IT TO WORK
+        const GITHUB_USER = 'YOUR_USERNAME'; 
+        const REPO_NAME = 'YOUR_REPO'; 
+        const PAT = 'YOUR_PAT_TOKEN'; 
         const FILE_PATH = 'news.json';
-        // ---------------------
+        // ---------------------------------
+
+        // Helper function to convert uploaded image to Base64
+        function getBase64(file) {
+           return new Promise((resolve, reject) => {
+             const reader = new FileReader();
+             reader.readAsDataURL(file);
+             reader.onload = () => resolve(reader.result);
+             reader.onerror = error => reject(error);
+           });
+        }
 
         async function publishNews() {
             const statusDiv = document.getElementById('status');
+            const btn = document.getElementById('pubBtn');
+            btn.disabled = true;
             statusDiv.style.color = 'blue';
-            statusDiv.innerText = "Publishing... Please wait.";
-
-            const newArticle = {
-                id: Date.now(),
-                title: document.getElementById('title').value,
-                category: document.getElementById('category').value,
-                date: new Date().toISOString().split('T')[0],
-                image: document.getElementById('image').value,
-                content: document.getElementById('content').value
-            };
-
-            const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${REPO_NAME}/contents/${FILE_PATH}`;
+            statusDiv.innerText = "Processing image and publishing... Please wait.";
 
             try {
-                // 1. Fetch the current news.json from GitHub to get its 'sha' (required to update files)
-                const getResponse = await fetch(apiUrl, {
-                    headers: { 'Authorization': `token ${PAT}` }
-                });
+                // Determine Image Source
+                let finalImage = "";
+                const fileInput = document.getElementById('imageFile').files[0];
+                const urlInput = document.getElementById('imageUrl').value;
+
+                if (fileInput) {
+                    finalImage = await getBase64(fileInput); // Convert file to text
+                } else if (urlInput) {
+                    finalImage = urlInput;
+                } else {
+                    finalImage = "https://images.unsplash.com/photo-1585007600263-ad1f34741891?w=800"; // Fallback
+                }
+
+                const newArticle = {
+                    id: Date.now(),
+                    title: document.getElementById('title').value,
+                    category: document.getElementById('category').value,
+                    placement: document.getElementById('placement').value,
+                    date: new Date().toLocaleDateString('en-GB'), // Format: DD/MM/YYYY
+                    author: "Admin",
+                    image: finalImage,
+                    content: document.getElementById('content').value
+                };
+
+                const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${REPO_NAME}/contents/${FILE_PATH}`;
+
+                // Fetch current JSON
+                const getResponse = await fetch(apiUrl, { headers: { 'Authorization': `token ${PAT}` } });
+                
+                if(!getResponse.ok) throw new Error("Could not find news.json or Token is invalid.");
+                
                 const currentData = await getResponse.json();
                 
-                // Decode current JSON content
-                const currentJson = JSON.parse(decodeURIComponent(escape(atob(currentData.content))));
+                // Use robust Base64 decoding for Unicode characters (Kannada)
+                const currentJsonText = decodeURIComponent(escape(atob(currentData.content)));
+                let currentJson = JSON.parse(currentJsonText);
 
-                // 2. Add the new article to the database
-                currentJson.articles.push(newArticle);
+                // Add new article to the top of the array
+                currentJson.articles.unshift(newArticle);
 
-                // 3. Encode the updated JSON back to Base64
+                // Re-encode securely
                 const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(currentJson, null, 2))));
 
-                // 4. Push the update back to GitHub
+                // Push update
                 const updateResponse = await fetch(apiUrl, {
                     method: 'PUT',
-                    headers: {
-                        'Authorization': `token ${PAT}`,
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Authorization': `token ${PAT}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        message: "Admin Portal: Added new article",
+                        message: "Added news via Admin Portal",
                         content: updatedContent,
-                        sha: currentData.sha // We must provide the old SHA to overwrite it
+                        sha: currentData.sha
                     })
                 });
 
                 if (updateResponse.ok) {
                     statusDiv.style.color = 'green';
-                    statusDiv.innerText = "Success! The article is now live on Karnataka Times.";
-                    // Clear form
+                    statusDiv.innerText = "Success! GitHub is building your site (takes ~60 seconds).";
+                    // Clear fields
                     document.getElementById('title').value = '';
-                    document.getElementById('image').value = '';
+                    document.getElementById('imageUrl').value = '';
+                    document.getElementById('imageFile').value = '';
                     document.getElementById('content').value = '';
                 } else {
-                    throw new Error("Failed to push update to GitHub.");
+                    throw new Error("Failed to push update to GitHub. Check repository permissions.");
                 }
 
             } catch (error) {
                 console.error(error);
                 statusDiv.style.color = 'red';
-                statusDiv.innerText = "Error publishing. Check console for details.";
+                statusDiv.innerText = "Error: " + error.message;
+            } finally {
+                btn.disabled = false;
             }
         }
     </script>
