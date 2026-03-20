@@ -20,12 +20,12 @@
             <a href="#" onclick="filterNews('AUTO', this)">Auto</a>
             <a href="#" onclick="filterNews('FINANCE', this)">Finance</a>
         </nav>
-        <div class="live-btn">● LIVE</div>
+        <div class="live-btn" onclick="openLiveVideo()" style="cursor: pointer;">● LIVE</div>
     </header>
 
     <div class="container">
         <section class="section-header" id="heroHeader">
-            <h2>ತಾಜಾ ಸುದ್ದಿಗಳು <span>(TOP STORIES)</span></h2>
+            <h2 id="heroTitleText">ತಾಜಾ ಸುದ್ದಿಗಳು <span>(TOP STORIES)</span></h2>
             <div class="heading-line"></div>
         </section>
 
@@ -76,6 +76,15 @@
                 <div class="modal-meta" id="modalMeta">Category | Date</div>
                 <h2 class="modal-title" id="modalTitle">News Title</h2>
                 <div class="modal-text" id="modalText">Article content goes here...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="videoModal" onclick="closeVideo(event)">
+        <div class="modal-content video-wrapper" onclick="event.stopPropagation()">
+            <button class="close-btn" onclick="closeVideo(event)">&times;</button>
+            <div class="iframe-container">
+                <iframe id="youtubeIframe" src="" title="Live TV" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
         </div>
     </div>
