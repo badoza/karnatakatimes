@@ -2,27 +2,110 @@
 <html lang="kn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Karnataka Times</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karnataka Times - Latest News</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Kannada:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Kannada:wght@400;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header class="app-header">
+
+    <header class="main-header">
         <div class="logo">KARNATAKA <span>TIMES</span></div>
-        <div id="status" class="status-dot">● LIVE</div>
+        <nav class="nav-menu">
+            <a href="#" class="active">Home</a>
+            <a href="#">News</a>
+            <a href="#">Auto</a>
+            <a href="#">Finance</a>
+            <a href="#">Govt Updates</a>
+            <a href="#">Schemes</a>
+        </nav>
+        <div class="live-btn">● LIVE</div>
     </header>
 
-    <main class="feed" id="newsFeed"></main>
+    <div class="container">
+        <section class="section-header">
+            <h2>ತಾಜಾ ಸುದ್ದಿಗಳು <span>(LATEST)</span></h2>
+            <div class="heading-line"></div>
+        </section>
 
-    <div id="reader" class="reader-view">
-        <div class="reader-nav">
-            <button onclick="closeNews()">← ಹಿಂದಕ್ಕೆ</button>
-            <span id="sourceInfo"></span>
-        </div>
-        <div id="readerContent" class="reader-content"></div>
+        <section class="bento-hero">
+            <article class="hero-card main-story">
+                <div class="tag">SCHEMES</div>
+                <div class="card-content">
+                    <h3>Solar Panel Subsidy: ಮನೆ ಛಾವಣಿಗೆ ಸೋಲಾರ್: ಸರ್ಕಾರದಿಂದ ಸಿಗಲಿದೆ ₹78,000 ಹಣ</h3>
+                    <p class="meta">By Chetan Yedve | 19/01/2026</p>
+                </div>
+            </article>
+            
+            <div class="side-stories">
+                <article class="hero-card side-story">
+                    <div class="tag">FINANCE</div>
+                    <div class="card-content">
+                        <h4>ರಿಯಲ್ ಎಸ್ಟೇಟ್ ವಲಯಕ್ಕೆ ಬಜೆಟ್ ಬಂಪರ್? ಮನೆ ಖರೀದಿದಾರರಿಗೆ ಸಿಗುತ್ತಾ ಭರ್ಜರಿ ಗಿಫ್ಟ್?</h4>
+                    </div>
+                </article>
+                <article class="hero-card side-story">
+                    <div class="tag">JOBS</div>
+                    <div class="card-content">
+                        <h4>PUC ಪಾಸಾದವರಿಗೆ ಬರೋಬ್ಬರಿ ₹52,000 ಸಂಬಳದ ಹುದ್ದೆಗಳಿಗೆ ಅರ್ಜಿ ಆಹ್ವಾನ!</h4>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="section-header">
+            <h2>ಆಟೋಮೊಬೈಲ್ <span>(AUTO)</span></h2>
+            <div class="heading-line"></div>
+        </section>
+
+        <section class="news-grid">
+            <article class="news-item">
+                <div class="img-placeholder" style="background: #e2e8f0;"></div>
+                <div class="item-details">
+                    <h4>ದೇಶಾದ್ಯಂತ ಇನ್ಮೇಲೆ ಇನೋವಾ ಕಾರುಗಳು ಸ್ಥಗಿತ! ಸಂಪೂರ್ಣ ಬಂದ್?</h4>
+                    <p class="meta">05/01/2026</p>
+                </div>
+            </article>
+            <article class="news-item">
+                <div class="img-placeholder" style="background: #cbd5e1;"></div>
+                <div class="item-details">
+                    <h4>26 Km ಮೈಲೇಜ್ ನೀಡುವ ಈ ಕಾರಿನ ಮೇಲೆ 1.85 ಲಕ್ಷದವರೆಗೆ ಟ್ಯಾಕ್ಸ್ ಕಡಿತ</h4>
+                    <p class="meta">26/12/2025</p>
+                </div>
+            </article>
+            <article class="news-item">
+                <div class="img-placeholder" style="background: #94a3b8;"></div>
+                <div class="item-details">
+                    <h4>₹2 ಲಕ್ಷ ಡೌನ್ ಪೇಮೆಂಟ್ ಮಾಡಿದರೆ Swift ಕಾರಿನ EMI ಎಷ್ಟು?</h4>
+                    <p class="meta">25/12/2025</p>
+                </div>
+            </article>
+        </section>
     </div>
 
-    <script src="script.js"></script>
+    <footer class="main-footer">
+        <div class="footer-grid">
+            <div class="footer-about">
+                <h3>KARNATAKA <span>TIMES</span></h3>
+                <p>Karnataka Times is a 24-hour Kannada news website, bringing you the latest breaking news and updates from every industry. Committed to transparent and responsible journalism.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <a href="#">Editorial Standards</a>
+                <a href="#">Contact Us</a>
+                <a href="#">About Us</a>
+            </div>
+            <div class="footer-contact">
+                <h4>Contact</h4>
+                <p>Ground Floor, Opp. Bhawani Mandir,<br>Bidar 585403, Karnataka</p>
+                <p>Email: contact@karnatakatimes.com</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Karnataka Times. All Rights Reserved.</p>
+            <p class="dev-credit">developed by Kunal Dongare</p>
+        </div>
+    </footer>
+
 </body>
 </html>
