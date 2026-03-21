@@ -7,10 +7,10 @@ const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}/latest`;
 const YOUTUBE_VIDEO_ID = 'HEci3TiKZwA'; 
 
 let globalNews = [];
+let globalAds = [];
 let slideInterval;
 let currentSlide = 0;
 
-// All Categories to loop through
 const CATEGORY_LIST = ['STATE', 'NATIONAL', 'INTERNATIONAL', 'SPORTS', 'AUTO', 'FINANCE', 'SCHEMES'];
 
 // 1. Fetch data from database 
@@ -20,7 +20,10 @@ async function fetchMyNews() {
         if (!response.ok) throw new Error("Could not connect to database");
         
         const data = await response.json();
+        
+        // Load both news AND ads
         globalNews = data.record.articles || [];
+        globalAds = data.record.ads || [];
         
         if (globalNews.length > 0) renderWebsite('ALL');
         else document.getElementById('heroSection').innerHTML = '<p style="grid-column: 1/-1; text-align:center; padding:50px;">ಇನ್ನೂ ಯಾವುದೇ ಸುದ್ದಿಗಳಿಲ್ಲ. (No news added yet.)</p>';
@@ -44,17 +47,29 @@ function renderWebsite(categoryFilter) {
     const heroHeader = document.getElementById('heroHeader');
     const heroSection = document.getElementById('heroSection');
     const categoriesContainer = document.getElementById('categoriesContainer');
+    const topAdContainer = document.getElementById('topAdContainer');
 
-    categoriesContainer.innerHTML = ''; // Clear previous
+    categoriesContainer.innerHTML = ''; 
+    topAdContainer.innerHTML = ''; 
+
+    // --- INJECT TOP ADVERTISEMENT ---
+    // Find the most recently uploaded 'ad-top'
+    const topAd = globalAds.find(ad => ad.type === 'ad-top');
+    if (topAd && categoryFilter === 'ALL') {
+        topAdContainer.innerHTML = `
+            <div class="ad-container top-ad">
+                <a href="${topAd.url}" target="_blank">
+                    <img src="${topAd.image}" alt="Advertisement" class="ad-image">
+                </a>
+            </div>
+        `;
+    }
 
     if (categoryFilter === 'ALL') {
-        // --- THE TOP HERO SECTION ---
         // Slider gets up to 5 Main Stories
         const sliderNews = globalNews.filter(a => a.placement === 'hero-main').slice(0, 5);
         // Static Side gets exactly 2 Sub Stories
         const staticSides = globalNews.filter(a => a.placement === 'hero-side').slice(0, 2);
-        
-        // Track used IDs so they don't repeat below
         const usedIds = [...sliderNews, ...staticSides].map(a => a.id);
 
         if (sliderNews.length > 0) {
@@ -72,14 +87,12 @@ function renderWebsite(categoryFilter) {
                             </div>
                         </article>
                     `).join('')}
-                    
                     ${sliderNews.length > 1 ? `
                         <div class="carousel-indicators">
                             ${sliderNews.map((_, idx) => `<div class="dot ${idx === 0 ? 'active' : ''}" onclick="goToSlide(${idx}, event)"></div>`).join('')}
                         </div>
                     ` : ''}
                 </div>
-
                 <div class="side-stories">
                     ${staticSides.map(side => `
                         <article class="hero-card side-story" style="background-image: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.1)), url('${side.image}'); background-size: cover; background-position: center;" onclick="openModal(${side.id})">
@@ -97,14 +110,15 @@ function renderWebsite(categoryFilter) {
             heroSection.style.display = 'none';
         }
 
-        // --- CATEGORY BREAKDOWN ---
+        // --- CATEGORY BREAKDOWN & MID-PAGE ADS ---
         let adCounter = 0;
+        const midAds = globalAds.filter(ad => ad.type === 'ad-mid');
+        let midAdIndex = 0;
         
         CATEGORY_LIST.forEach(cat => {
             const catNews = globalNews.filter(n => n.category === cat && !usedIds.includes(n.id));
             
             if (catNews.length > 0) {
-                // First 2 items get the "featured-card" big box style automatically
                 const catHTML = `
                     <section class="section-header">
                         <h2>${cat} <span>(NEWS)</span></h2>
@@ -124,25 +138,26 @@ function renderWebsite(categoryFilter) {
                 `;
                 categoriesContainer.innerHTML += catHTML;
                 
-                // Inject an Ad Banner every 2 categories
+                // Inject an Ad Banner every 2 categories, IF an ad exists
                 adCounter++;
-                if (adCounter % 2 === 0) {
+                if (adCounter % 2 === 0 && midAds.length > 0) {
+                    const currentAd = midAds[midAdIndex % midAds.length]; // Loops through available ads
                     categoriesContainer.innerHTML += `
                         <div class="ad-container">
-                            <div class="ad-banner">Mid-Page Ad Space (Responsive)</div>
+                            <a href="${currentAd.url}" target="_blank">
+                                <img src="${currentAd.image}" alt="Advertisement" class="ad-image">
+                            </a>
                         </div>
                     `;
+                    midAdIndex++;
                 }
             }
         });
 
     } else {
-        // If clicking a specific menu item, just show that category
         heroHeader.style.display = 'none';
         heroSection.style.display = 'none';
-        
         const filteredNews = globalNews.filter(a => a.category === categoryFilter);
-        
         categoriesContainer.innerHTML = `
             <section class="section-header">
                 <h2>${categoryFilter} <span>(NEWS)</span></h2>
@@ -163,44 +178,34 @@ function renderWebsite(categoryFilter) {
     }
 }
 
-// --- CAROUSEL (SLIDER) LOGIC ---
+// --- CAROUSEL LOGIC ---
 function initCarousel() {
     const slides = document.querySelectorAll('.carousel-slide');
     const dots = document.querySelectorAll('.dot');
     if (slides.length < 2) return;
-
     currentSlide = 0;
 
     window.goToSlide = function(index, event) {
-        if(event) event.stopPropagation(); // Prevent modal from opening when clicking dot
+        if(event) event.stopPropagation(); 
         slides[currentSlide].classList.remove('active');
         dots[currentSlide].classList.remove('active');
-        
         currentSlide = (index + slides.length) % slides.length;
-        
         slides[currentSlide].classList.add('active');
         dots[currentSlide].classList.add('active');
         
-        // Reset timer if user clicks
         clearInterval(slideInterval);
         slideInterval = setInterval(() => goToSlide(currentSlide + 1), 3000);
     };
 
-    // Auto loop every 3 seconds
     slideInterval = setInterval(() => goToSlide(currentSlide + 1), 3000);
 
-    // Mobile Swipe Logic
     const container = document.getElementById('mainCarousel');
     let startX = 0;
-    
-    container.addEventListener('touchstart', e => {
-        startX = e.touches[0].clientX;
-    }, {passive: true});
-
+    container.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, {passive: true});
     container.addEventListener('touchend', e => {
         let endX = e.changedTouches[0].clientX;
-        if (startX - endX > 50) goToSlide(currentSlide + 1); // Swipe Left
-        if (endX - startX > 50) goToSlide(currentSlide - 1); // Swipe Right
+        if (startX - endX > 50) goToSlide(currentSlide + 1); 
+        if (endX - startX > 50) goToSlide(currentSlide - 1); 
     });
 }
 
@@ -208,14 +213,11 @@ function initCarousel() {
 window.openModal = function(id) {
     const article = globalNews.find(a => a.id === id);
     if(!article) return;
-
     document.getElementById('modalImg').src = article.image; 
     document.getElementById('modalTitle').innerText = article.title;
     document.getElementById('modalMeta').innerText = `${article.category} | ${article.date}`;
-    
     const formattedContent = article.content.split('\n').filter(p => p.trim() !== '').map(para => `<p style="margin-bottom:15px;">${para}</p>`).join('');
     document.getElementById('modalText').innerHTML = formattedContent;
-    
     document.getElementById('newsModal').classList.add('active');
     document.body.style.overflow = 'hidden'; 
 };
@@ -235,7 +237,6 @@ window.openLiveVideo = function() {
     document.getElementById('youtubeIframe').src = `https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?autoplay=1&mute=0`;
     floatingVideo.classList.add('active');
 };
-
 window.closeVideo = function(event) {
     if (event) event.preventDefault();
     document.getElementById('youtubeIframe').src = ""; 
