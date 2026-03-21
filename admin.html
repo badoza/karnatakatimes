@@ -1,3 +1,10 @@
+
+        // ==========================================
+        // 1. JSONBIN SETTINGS (For Text Data)
+        // ==========================================
+        const BIN_ID = ''; 
+        const MASTER_KEY = ''; 
+
 <!DOCTYPE html>
 <html lang="kn">
 <head>
@@ -22,7 +29,7 @@
 <body>
 
     <div class="admin-box">
-        <h2>Publishing Portal <span class="badge">v3.0 (GitHub Images)</span></h2>
+        <h2>Publishing Portal <span class="badge">v4.0 (Auto-Compress)</span></h2>
         
         <label style="color: #EA5335; font-size: 1.1rem;">What are you publishing?</label>
         <select id="postType" onchange="toggleForm()" style="border: 2px solid #EA5335; font-weight: bold;">
@@ -38,7 +45,7 @@
                 <input type="text" id="imageUrl" placeholder="https://...">
             </div>
             <div>
-                <small>Option 2: Upload to GitHub</small>
+                <small>Option 2: Upload from Computer</small>
                 <input type="file" id="imageFile" accept="image/png, image/jpeg, image/webp, image/gif">
             </div>
         </div>
@@ -86,11 +93,9 @@
         const MASTER_KEY = '$2a$10$nzexZyI4UJasFz0OxbIg/u7ssJFZrqheHjEfZkwzHIjOMtqbqEMS2'; 
         
         // ==========================================
-        // 2. GITHUB SETTINGS (For Image Uploads)
+        // 2. IMGBB SETTINGS (For Image Uploads)
         // ==========================================
-        const GITHUB_USER = 'badoza'; 
-        const GITHUB_REPO = 'karnatakatimes'; 
-        const GITHUB_TOKEN = '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'; // Must have "repo" permission checked
+        const IMGBB_API_KEY = '366e3f7ab6b5dbed6cd7a53ac1f55c03'; 
         // ==========================================
 
         function toggleForm() {
@@ -106,42 +111,58 @@
             }
         }
 
-        // New function: Sends the file to your GitHub repository
-        async function uploadImageToGitHub(file) {
-            // 1. Convert file to pure Base64 (stripping the data:image prefix)
-            const base64Data = await new Promise((resolve, reject) => {
+        // --- THE MAGIC AUTO-COMPRESSOR ---
+        // This function takes ANY file, resizes it perfectly, and uploads it to ImgBB
+        async function processAndUploadImage(file) {
+            return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
-                reader.onload = () => resolve(reader.result.split(',')[1]); 
-                reader.onerror = error => reject(error);
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = async function() {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+
+                        // Set maximum width to standard 1200px. Shrink height proportionally.
+                        const MAX_WIDTH = 1200;
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > MAX_WIDTH) {
+                            height = Math.round((height * MAX_WIDTH) / width);
+                            width = MAX_WIDTH;
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+
+                        // Draw and compress to 85% JPEG quality (Tiny file size!)
+                        ctx.drawImage(img, 0, 0, width, height);
+                        const base64Data = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+
+                        // Send compressed image to ImgBB
+                        try {
+                            const formData = new FormData();
+                            formData.append('image', base64Data);
+                            
+                            const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+                                method: 'POST',
+                                body: formData
+                            });
+                            
+                            const data = await res.json();
+                            if(data.success) {
+                                resolve(data.data.url); // Returns the fast ImgBB URL
+                            } else {
+                                reject(new Error("ImgBB Upload Failed"));
+                            }
+                        } catch(e) {
+                            reject(e);
+                        }
+                    }
+                }
             });
-
-            // 2. Create a unique filename so it doesn't overwrite old images
-            const ext = file.name.split('.').pop();
-            const fileName = `img_${Date.now()}.${ext}`;
-            const path = `images/${fileName}`; // Saves it in an "images" folder in your repo
-
-            // 3. Send to GitHub via API
-            const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${path}`;
-            const response = await fetch(url, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `token ${GITHUB_TOKEN}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    message: `Upload image ${fileName} via Admin Portal`,
-                    content: base64Data
-                })
-            });
-
-            if (!response.ok) {
-                const err = await response.json();
-                throw new Error(`GitHub Error: ${err.message}`);
-            }
-
-            // 4. Return the raw.githubusercontent URL (loads instantly, bypasses Pages build delay)
-            return `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${path}`;
         }
 
         async function publishData() {
@@ -159,12 +180,12 @@
                 const file = document.getElementById('imageFile').files[0];
                 const url = document.getElementById('imageUrl').value;
                 
-                // Route 1: If user selected a file, send to GitHub first
+                // Route 1: Auto-compress and send to ImgBB
                 if (file) {
-                    status.innerText = "Uploading image to GitHub repository...";
-                    finalImg = await uploadImageToGitHub(file);
+                    status.innerText = "Compressing & Uploading image to ImgBB...";
+                    finalImg = await processAndUploadImage(file);
                 } 
-                // Route 2: If user pasted a URL, just use that
+                // Route 2: Paste URL
                 else if (url) {
                     finalImg = url;
                 }
@@ -230,6 +251,3 @@
     </script>
 </body>
 </html>
-
-
-        
