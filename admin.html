@@ -14,14 +14,15 @@
         .upload-group div { flex: 1; }
         button { background: #EA5335; color: white; padding: 15px; border: none; width: 100%; font-size: 16px; font-weight: bold; border-radius: 5px; cursor: pointer; margin-top: 25px; transition: 0.3s;}
         button:hover { background: #d94b30; }
-        #status { margin-top: 15px; font-weight: bold; text-align: center; }
+        button:disabled { background: #94a3b8; cursor: not-allowed; }
+        #status { margin-top: 15px; font-weight: bold; text-align: center; padding: 10px; border-radius: 5px;}
         .hidden { display: none; }
     </style>
 </head>
 <body>
 
     <div class="admin-box">
-        <h2>Publishing Portal <span class="badge">v2.0</span></h2>
+        <h2>Publishing Portal <span class="badge">v3.0 (GitHub Images)</span></h2>
         
         <label style="color: #EA5335; font-size: 1.1rem;">What are you publishing?</label>
         <select id="postType" onchange="toggleForm()" style="border: 2px solid #EA5335; font-weight: bold;">
@@ -37,7 +38,7 @@
                 <input type="text" id="imageUrl" placeholder="https://...">
             </div>
             <div>
-                <small>Option 2: Upload from Computer</small>
+                <small>Option 2: Upload to GitHub</small>
                 <input type="file" id="imageFile" accept="image/png, image/jpeg, image/webp, image/gif">
             </div>
         </div>
@@ -71,7 +72,6 @@
         <div id="adFields" class="hidden">
             <label>Ad Target URL (Where should users go when they click the ad?)</label>
             <input type="text" id="adTargetUrl" placeholder="e.g., https://sponsor-website.com">
-            <p style="font-size: 0.85rem; color: #64748b; margin-top: 5px;">* Note: The website will automatically crop and resize your image to fit the industry-standard banner dimensions perfectly.</p>
         </div>
 
         <button onclick="publishData()" id="pubBtn">Publish to Website</button>
@@ -80,13 +80,19 @@
 
     <script>
         // ==========================================
-        // PUT YOUR JSONBIN DETAILS HERE
+        // 1. JSONBIN SETTINGS (For Text Data)
         // ==========================================
         const BIN_ID = '69bcdb8aaa77b81da9ffa8f5'; 
         const MASTER_KEY = '$2a$10$nzexZyI4UJasFz0OxbIg/u7ssJFZrqheHjEfZkwzHIjOMtqbqEMS2'; 
+        
+        // ==========================================
+        // 2. GITHUB SETTINGS (For Image Uploads)
+        // ==========================================
+        const GITHUB_USER = 'badoza'; 
+        const GITHUB_REPO = 'karnatakatimes'; 
+        const GITHUB_TOKEN = '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'; // Must have "repo" permission checked
         // ==========================================
 
-        // Switch between News Form and Ad Form
         function toggleForm() {
             const type = document.getElementById('postType').value;
             if (type === 'news') {
@@ -100,46 +106,81 @@
             }
         }
 
-        function getBase64(file) {
-           return new Promise((resolve, reject) => {
-             const reader = new FileReader();
-             reader.readAsDataURL(file);
-             reader.onload = () => resolve(reader.result);
-             reader.onerror = error => reject(error);
-           });
+        // New function: Sends the file to your GitHub repository
+        async function uploadImageToGitHub(file) {
+            // 1. Convert file to pure Base64 (stripping the data:image prefix)
+            const base64Data = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result.split(',')[1]); 
+                reader.onerror = error => reject(error);
+            });
+
+            // 2. Create a unique filename so it doesn't overwrite old images
+            const ext = file.name.split('.').pop();
+            const fileName = `img_${Date.now()}.${ext}`;
+            const path = `images/${fileName}`; // Saves it in an "images" folder in your repo
+
+            // 3. Send to GitHub via API
+            const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${path}`;
+            const response = await fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${GITHUB_TOKEN}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: `Upload image ${fileName} via Admin Portal`,
+                    content: base64Data
+                })
+            });
+
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(`GitHub Error: ${err.message}`);
+            }
+
+            // 4. Return the raw.githubusercontent URL (loads instantly, bypasses Pages build delay)
+            return `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${path}`;
         }
 
         async function publishData() {
             const status = document.getElementById('status');
             const btn = document.getElementById('pubBtn');
             btn.disabled = true; 
-            status.style.color = 'blue'; 
-            status.innerText = "Publishing to database... Please wait.";
+            status.style.color = '#1e40af'; 
+            status.style.backgroundColor = '#dbeafe';
+            status.innerText = "Processing... Please wait.";
 
             try {
                 const postType = document.getElementById('postType').value;
-                let finalImg = "https://images.unsplash.com/photo-1585007600263-ad1f34741891?w=800"; // Fallback
+                let finalImg = "https://images.unsplash.com/photo-1585007600263-ad1f34741891?w=800"; 
                 
                 const file = document.getElementById('imageFile').files[0];
                 const url = document.getElementById('imageUrl').value;
                 
-                if (file) finalImg = await getBase64(file);
-                else if (url) finalImg = url;
+                // Route 1: If user selected a file, send to GitHub first
+                if (file) {
+                    status.innerText = "Uploading image to GitHub repository...";
+                    finalImg = await uploadImageToGitHub(file);
+                } 
+                // Route 2: If user pasted a URL, just use that
+                else if (url) {
+                    finalImg = url;
+                }
 
+                status.innerText = "Saving data to JSONBin...";
                 const apiUrl = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
                 
-                // Fetch the current database
                 const getRes = await fetch(apiUrl + '/latest', { headers: { 'X-Master-Key': MASTER_KEY } });
-                if (!getRes.ok) throw new Error("Could not connect to JSONBin. Check your keys.");
+                if (!getRes.ok) throw new Error("Could not connect to JSONBin.");
                 const currentData = await getRes.json();
                 let db = currentData.record;
 
-                // Make sure arrays exist
                 if (!db.articles) db.articles = [];
                 if (!db.ads) db.ads = [];
 
                 if (postType === 'news') {
-                    // Save News
                     db.articles.unshift({
                         id: Date.now(),
                         title: document.getElementById('title').value,
@@ -150,16 +191,14 @@
                         date: new Date().toLocaleDateString('kn-IN', { day: 'numeric', month: 'short', year: 'numeric' })
                     });
                 } else {
-                    // Save Advertisement
                     db.ads.unshift({
                         id: Date.now(),
-                        type: postType, // 'ad-top' or 'ad-mid'
+                        type: postType, 
                         image: finalImg,
                         url: document.getElementById('adTargetUrl').value || '#'
                     });
                 }
 
-                // Save it back to JSONBin
                 const putRes = await fetch(apiUrl, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', 'X-Master-Key': MASTER_KEY },
@@ -167,20 +206,22 @@
                 });
 
                 if (putRes.ok) {
-                    status.style.color = 'green'; 
+                    status.style.color = '#166534'; 
+                    status.style.backgroundColor = '#dcfce7';
                     status.innerText = "Success! Published successfully.";
-                    // Clear inputs
+                    
                     document.getElementById('title').value = '';
                     document.getElementById('content').value = '';
                     document.getElementById('imageUrl').value = '';
                     document.getElementById('imageFile').value = '';
                     document.getElementById('adTargetUrl').value = '';
                 } else {
-                    throw new Error("Failed to save to JSONBin.");
+                    throw new Error("JSONBin rejected the save request.");
                 }
 
             } catch (err) {
-                status.style.color = 'red'; 
+                status.style.color = '#991b1b'; 
+                status.style.backgroundColor = '#fee2e2';
                 status.innerText = "Error: " + err.message;
             } finally {
                 btn.disabled = false;
@@ -188,4 +229,7 @@
         }
     </script>
 </body>
-</html>       
+</html>
+
+
+        
