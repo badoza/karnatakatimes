@@ -6,11 +6,12 @@ const MASTER_KEY = '$2a$10$nzexZyI4UJasFz0OxbIg/u7ssJFZrqheHjEfZkwzHIjOMtqbqEMS2
 const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}/latest`;
 
 // ==========================================
-// LIVE TV CONFIGURATION (Direct Video ID)
+// LIVE TV CONFIGURATION
 // ==========================================
 const YOUTUBE_VIDEO_ID = 'HEci3TiKZwA'; 
 
 let globalNews = [];
+let carouselIntervals = []; // Array to store loop timers
 
 // 1. Fetch data from database 
 async function fetchMyNews() {
@@ -22,7 +23,6 @@ async function fetchMyNews() {
         if (!response.ok) throw new Error("Could not connect to database");
         
         const data = await response.json();
-        
         globalNews = data.record.articles || [];
         
         if (globalNews.length > 0) {
@@ -44,6 +44,46 @@ window.filterNews = function(category, element) {
     renderWebsite(category);
 };
 
+// --- HELPER FUNCTION: HTML FOR CAROUSELS ---
+function generateCarouselHTML(articles, isMain) {
+    if (!articles || articles.length === 0) return '';
+    
+    const slides = articles.map((article, index) => `
+        <article class="carousel-slide ${index === 0 ? 'active' : ''}" 
+                 style="background-image: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.1)), url('${article.image}'); background-size: cover; background-position: center;" 
+                 onclick="openModal(${article.id})">
+            <div class="tag">${article.category}</div>
+            <div class="card-content">
+                <h${isMain ? '3' : '4'}>${article.title}</h${isMain ? '3' : '4'}>
+                ${isMain ? `<p class="meta">Karnataka Times | ${article.date}</p>` : ''}
+            </div>
+        </article>
+    `).join('');
+
+    return `<div class="carousel-container ${isMain ? 'main-carousel' : 'side-carousel'}">${slides}</div>`;
+}
+
+// --- HELPER FUNCTION: START THE LOOPS ---
+function startCarousels() {
+    // Clear any existing timers so they don't overlap when changing categories
+    carouselIntervals.forEach(clearInterval);
+    carouselIntervals = [];
+
+    const containers = document.querySelectorAll('.carousel-container');
+    containers.forEach(container => {
+        const slides = container.querySelectorAll('.carousel-slide');
+        if (slides.length > 1) { // Only loop if there is more than 1 image
+            let currentIndex = 0;
+            const interval = setInterval(() => {
+                slides[currentIndex].classList.remove('active');
+                currentIndex = (currentIndex + 1) % slides.length;
+                slides[currentIndex].classList.add('active');
+            }, 3000); // Loops every 3 seconds (Industry standard readability)
+            carouselIntervals.push(interval);
+        }
+    });
+}
+
 // 3. Render layout dynamically
 function renderWebsite(categoryFilter) {
     const heroHeader = document.getElementById('heroHeader');
@@ -56,9 +96,16 @@ function renderWebsite(categoryFilter) {
         ? globalNews 
         : globalNews.filter(a => a.category === categoryFilter);
 
-    const heroMain = displayNews.find(a => a.placement === 'hero-main');
-    const heroSides = displayNews.filter(a => a.placement === 'hero-side').slice(0, 2);
-    const standardNews = displayNews.filter(a => a !== heroMain && !heroSides.includes(a));
+    // Grab up to 5 Main Stories
+    const heroMainAll = displayNews.filter(a => a.placement === 'hero-main').slice(0, 5);
+    
+    // Grab up to 6 Side Stories (We will split them into 2 boxes of 3)
+    const heroSideAll = displayNews.filter(a => a.placement === 'hero-side').slice(0, 6);
+    const sideBox1Data = heroSideAll.slice(0, 3);
+    const sideBox2Data = heroSideAll.slice(3, 6);
+    
+    // Standard news (Anything not in the carousels)
+    const standardNews = displayNews.filter(a => !heroMainAll.includes(a) && !heroSideAll.includes(a));
 
     if (categoryFilter === 'ALL') {
         heroTitleText.innerHTML = 'ತಾಜಾ ಸುದ್ದಿಗಳು <span>(TOP STORIES)</span>';
@@ -68,29 +115,21 @@ function renderWebsite(categoryFilter) {
         gridTitle.innerHTML = `ಇತರೆ <span>(${categoryFilter} NEWS)</span>`;
     }
 
-    if (heroMain) {
+    // Draw the Carousels
+    if (heroMainAll.length > 0) {
         heroHeader.style.display = 'block';
         heroSection.style.display = 'grid';
         
         heroSection.innerHTML = `
-            <article class="hero-card main-story" style="background-image: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.1)), url('${heroMain.image}'); background-size: cover; background-position: center;" onclick="openModal(${heroMain.id})">
-                <div class="tag">${heroMain.category}</div>
-                <div class="card-content">
-                    <h3>${heroMain.title}</h3>
-                    <p class="meta">Karnataka Times | ${heroMain.date}</p>
-                </div>
-            </article>
+            ${generateCarouselHTML(heroMainAll, true)}
             <div class="side-stories">
-                ${heroSides.map(side => `
-                    <article class="hero-card side-story" style="background-image: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.1)), url('${side.image}'); background-size: cover; background-position: center;" onclick="openModal(${side.id})">
-                        <div class="tag">${side.category}</div>
-                        <div class="card-content">
-                            <h4>${side.title}</h4>
-                        </div>
-                    </article>
-                `).join('')}
+                ${sideBox1Data.length > 0 ? generateCarouselHTML(sideBox1Data, false) : ''}
+                ${sideBox2Data.length > 0 ? generateCarouselHTML(sideBox2Data, false) : ''}
             </div>
         `;
+        
+        // Start the sliding animation
+        startCarousels();
     } else {
         heroHeader.style.display = 'none';
         heroSection.style.display = 'none';
@@ -153,18 +192,16 @@ let xOffset = 0;
 let yOffset = 0;
 
 window.openLiveVideo = function() {
-    // Uses the direct Video ID provided by you!
     document.getElementById('youtubeIframe').src = `https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?autoplay=1&mute=0`;
     floatingVideo.classList.add('active');
 };
 
 window.closeVideo = function(event) {
     if (event) event.preventDefault();
-    document.getElementById('youtubeIframe').src = ""; // Stops video playback
+    document.getElementById('youtubeIframe').src = ""; 
     floatingVideo.classList.remove('active');
 };
 
-// Dragging Mechanics
 dragHandle.addEventListener("mousedown", dragStart);
 document.addEventListener("mouseup", dragEnd);
 document.addEventListener("mousemove", drag);
