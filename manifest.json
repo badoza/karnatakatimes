@@ -1,14 +1,14 @@
 {
   "name": "Karnataka Times",
-  "short_name": "KT News",
-  "start_url": "index.html",
+  "short_name": "K-Times",
+  "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0a0a0a",
-  "theme_color": "#d4af37",
+  "background_color": "#0f172a",
+  "theme_color": "#EA5335",
   "icons": [
     {
-      "src": "logo.png",
-      "sizes": "192x192",
+      "src": "https://cdn-icons-png.flaticon.com/512/2965/2965879.png",
+      "sizes": "512x512",
       "type": "image/png"
     }
   ]
