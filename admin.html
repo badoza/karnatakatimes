@@ -6,43 +6,31 @@
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #e2e8f0; padding: 40px; }
         .admin-box { background: white; max-width: 700px; margin: auto; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { color: #0f172a; border-bottom: 3px solid #EA5335; padding-bottom: 10px; }
-        label { font-weight: bold; margin-top: 15px; display: block; color: #1e293b; }
+        h2 { color: #0f172a; border-bottom: 3px solid #EA5335; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .badge { background: #EA5335; color: white; font-size: 0.8rem; padding: 5px 10px; border-radius: 20px; }
+        label { font-weight: bold; margin-top: 20px; display: block; color: #1e293b; }
         input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #cbd5e1; border-radius: 5px; box-sizing: border-box;}
         .upload-group { display: flex; gap: 15px; background: #f8fafc; padding: 15px; border: 1px dashed #cbd5e1; border-radius: 5px;}
         .upload-group div { flex: 1; }
-        button { background: #EA5335; color: white; padding: 15px; border: none; width: 100%; font-size: 16px; font-weight: bold; border-radius: 5px; cursor: pointer; margin-top: 20px;}
+        button { background: #EA5335; color: white; padding: 15px; border: none; width: 100%; font-size: 16px; font-weight: bold; border-radius: 5px; cursor: pointer; margin-top: 25px; transition: 0.3s;}
         button:hover { background: #d94b30; }
         #status { margin-top: 15px; font-weight: bold; text-align: center; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
     <div class="admin-box">
-        <h2>Publish Karnataka Times News</h2>
+        <h2>Publishing Portal <span class="badge">v2.0</span></h2>
         
-        <label>Title (ಶೀರ್ಷಿಕೆ)</label>
-        <input type="text" id="title" placeholder="Enter headline...">
-
-        <label>Category (ವರ್ಗ)</label>
-        <select id="category">
-            <option value="STATE">State (ರಾಜ್ಯ)</option>
-            <option value="NATIONAL">National (ರಾಷ್ಟ್ರೀಯ)</option>
-            <option value="INTERNATIONAL">International (ಅಂತಾರಾಷ್ಟ್ರೀಯ)</option>
-            <option value="SPORTS">Sports (ಕ್ರೀಡೆ)</option>
-            <option value="AUTO">Auto (ಆಟೋಮೊಬೈಲ್)</option>
-            <option value="FINANCE">Finance (ಹಣಕಾಸು)</option>
-            <option value="SCHEMES">Schemes (ಯೋಜನೆಗಳು)</option>
+        <label style="color: #EA5335; font-size: 1.1rem;">What are you publishing?</label>
+        <select id="postType" onchange="toggleForm()" style="border: 2px solid #EA5335; font-weight: bold;">
+            <option value="news">📰 News Article</option>
+            <option value="ad-top">⭐ Top Banner Ad (Under Header)</option>
+            <option value="ad-mid">🎯 Mid-Page Banner Ad (Between Categories)</option>
         </select>
 
-        <label>Placement on Website</label>
-        <select id="placement">
-            <option value="standard">Normal Story (Bottom Grid)</option>
-            <option value="hero-main">Big Story (Main Top Banner)</option>
-            <option value="hero-side">Sub Story (Small Top Banner)</option>
-        </select>
-
-        <label>Image Source (Choose ONE)</label>
+        <label id="imageLabel">Image / Banner Source (Choose ONE)</label>
         <div class="upload-group">
             <div>
                 <small>Option 1: Paste Image URL</small>
@@ -50,14 +38,43 @@
             </div>
             <div>
                 <small>Option 2: Upload from Computer</small>
-                <input type="file" id="imageFile" accept="image/png, image/jpeg, image/webp">
+                <input type="file" id="imageFile" accept="image/png, image/jpeg, image/webp, image/gif">
             </div>
         </div>
 
-        <label>Full Content (ಸಂಪೂರ್ಣ ಸುದ್ದಿ)</label>
-        <textarea id="content" rows="6" placeholder="Write your full 2-paragraph article here..."></textarea>
+        <div id="newsFields">
+            <label>Title (ಶೀರ್ಷಿಕೆ)</label>
+            <input type="text" id="title" placeholder="Enter headline...">
 
-        <button onclick="publishNews()" id="pubBtn">Publish Instantly</button>
+            <label>Category (ವರ್ಗ)</label>
+            <select id="category">
+                <option value="STATE">State (ರಾಜ್ಯ)</option>
+                <option value="NATIONAL">National (ರಾಷ್ಟ್ರೀಯ)</option>
+                <option value="INTERNATIONAL">International (ಅಂತಾರಾಷ್ಟ್ರೀಯ)</option>
+                <option value="SPORTS">Sports (ಕ್ರೀಡೆ)</option>
+                <option value="AUTO">Auto (ಆಟೋಮೊಬೈಲ್)</option>
+                <option value="FINANCE">Finance (ಹಣಕಾಸು)</option>
+                <option value="SCHEMES">Schemes (ಯೋಜನೆಗಳು)</option>
+            </select>
+
+            <label>Placement on Website</label>
+            <select id="placement">
+                <option value="standard">Normal Story (Bottom Grid)</option>
+                <option value="hero-main">Big Story (Main Top Banner Slider)</option>
+                <option value="hero-side">Sub Story (Small Top Banner Locked)</option>
+            </select>
+
+            <label>Full Content (ಸಂಪೂರ್ಣ ಸುದ್ದಿ)</label>
+            <textarea id="content" rows="6" placeholder="Write your full 2-paragraph article here..."></textarea>
+        </div>
+
+        <div id="adFields" class="hidden">
+            <label>Ad Target URL (Where should users go when they click the ad?)</label>
+            <input type="text" id="adTargetUrl" placeholder="e.g., https://sponsor-website.com">
+            <p style="font-size: 0.85rem; color: #64748b; margin-top: 5px;">* Note: The website will automatically crop and resize your image to fit the industry-standard banner dimensions perfectly.</p>
+        </div>
+
+        <button onclick="publishData()" id="pubBtn">Publish to Website</button>
         <div id="status"></div>
     </div>
 
@@ -69,6 +86,20 @@
         const MASTER_KEY = '$2a$10$nzexZyI4UJasFz0OxbIg/u7ssJFZrqheHjEfZkwzHIjOMtqbqEMS2'; 
         // ==========================================
 
+        // Switch between News Form and Ad Form
+        function toggleForm() {
+            const type = document.getElementById('postType').value;
+            if (type === 'news') {
+                document.getElementById('newsFields').classList.remove('hidden');
+                document.getElementById('adFields').classList.add('hidden');
+                document.getElementById('imageLabel').innerText = "News Image Source (Choose ONE)";
+            } else {
+                document.getElementById('newsFields').classList.add('hidden');
+                document.getElementById('adFields').classList.remove('hidden');
+                document.getElementById('imageLabel').innerText = "Upload Advertisement Banner Image";
+            }
+        }
+
         function getBase64(file) {
            return new Promise((resolve, reject) => {
              const reader = new FileReader();
@@ -78,30 +109,22 @@
            });
         }
 
-        async function publishNews() {
+        async function publishData() {
             const status = document.getElementById('status');
             const btn = document.getElementById('pubBtn');
             btn.disabled = true; 
             status.style.color = 'blue'; 
-            status.innerText = "Publishing to JSONBin... Please wait.";
+            status.innerText = "Publishing to database... Please wait.";
 
             try {
-                let finalImg = "https://images.unsplash.com/photo-1585007600263-ad1f34741891?w=800"; // Fallback image
+                const postType = document.getElementById('postType').value;
+                let finalImg = "https://images.unsplash.com/photo-1585007600263-ad1f34741891?w=800"; // Fallback
+                
                 const file = document.getElementById('imageFile').files[0];
                 const url = document.getElementById('imageUrl').value;
                 
                 if (file) finalImg = await getBase64(file);
                 else if (url) finalImg = url;
-
-                const newArticle = {
-                    id: Date.now(),
-                    title: document.getElementById('title').value,
-                    category: document.getElementById('category').value,
-                    placement: document.getElementById('placement').value,
-                    image: finalImg,
-                    content: document.getElementById('content').value,
-                    date: new Date().toLocaleDateString('kn-IN', { day: 'numeric', month: 'short', year: 'numeric' })
-                };
 
                 const apiUrl = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
                 
@@ -111,11 +134,30 @@
                 const currentData = await getRes.json();
                 let db = currentData.record;
 
-                // Make sure the articles array exists
+                // Make sure arrays exist
                 if (!db.articles) db.articles = [];
+                if (!db.ads) db.ads = [];
 
-                // Add the new article to the top of the list
-                db.articles.unshift(newArticle);
+                if (postType === 'news') {
+                    // Save News
+                    db.articles.unshift({
+                        id: Date.now(),
+                        title: document.getElementById('title').value,
+                        category: document.getElementById('category').value,
+                        placement: document.getElementById('placement').value,
+                        image: finalImg,
+                        content: document.getElementById('content').value,
+                        date: new Date().toLocaleDateString('kn-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+                    });
+                } else {
+                    // Save Advertisement
+                    db.ads.unshift({
+                        id: Date.now(),
+                        type: postType, // 'ad-top' or 'ad-mid'
+                        image: finalImg,
+                        url: document.getElementById('adTargetUrl').value || '#'
+                    });
+                }
 
                 // Save it back to JSONBin
                 const putRes = await fetch(apiUrl, {
@@ -126,12 +168,13 @@
 
                 if (putRes.ok) {
                     status.style.color = 'green'; 
-                    status.innerText = "Success! The news is live on your website.";
-                    // Clear the form
+                    status.innerText = "Success! Published successfully.";
+                    // Clear inputs
                     document.getElementById('title').value = '';
                     document.getElementById('content').value = '';
                     document.getElementById('imageUrl').value = '';
                     document.getElementById('imageFile').value = '';
+                    document.getElementById('adTargetUrl').value = '';
                 } else {
                     throw new Error("Failed to save to JSONBin.");
                 }
@@ -145,4 +188,4 @@
         }
     </script>
 </body>
-</html>
+</html>       
