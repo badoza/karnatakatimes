@@ -89,15 +89,24 @@ h1, h2, h3, h4 { font-family: 'Noto Serif Kannada', serif; }
 .footer-bottom { max-width: 1200px; margin: 20px auto 0; display: flex; justify-content: space-between; align-items: center; color: #64748b; font-size: 0.85rem; }
 .dev-credit { color: #94a3b8; font-style: italic; }
 
+/* ========================================== */
+/* PERFECT MOBILE RESPONSIVE LAYOUT           */
+/* ========================================== */
 @media (max-width: 900px) {
-    .main-header { padding: 15px; }
-    .nav-menu { width: 100%; overflow-x: auto; padding-bottom: 5px; -ms-overflow-style: none; scrollbar-width: none; order: 3; margin-top: 10px; }
+    /* Adjusted header padding to prevent squishing */
+    .main-header { padding: 12px 15px; } 
+    
+    /* Dynamically shrink the logo text and tighten letter spacing */
+    .logo { order: 1; font-size: 1.35rem; letter-spacing: 0px; }
+    
+    /* Make the LIVE button slightly more compact */
+    .live-btn { order: 2; margin-left: auto; padding: 6px 14px; font-size: 0.8rem; }
+    
+    .nav-menu { width: 100%; overflow-x: auto; padding-bottom: 5px; -ms-overflow-style: none; scrollbar-width: none; order: 3; margin-top: 12px; }
     .nav-menu::-webkit-scrollbar { display: none; }
     .nav-menu a { margin: 0 15px 0 0; }
-    .logo { order: 1; }
-    .live-btn { order: 2; margin-left: auto; }
     
-    .ad-image { max-height: 100px; } /* Smaller ads on mobile */
+    .ad-image { max-height: 100px; }
     
     .bento-hero { grid-template-columns: 1fr; gap: 15px; }
     .carousel-container { height: 350px; }
